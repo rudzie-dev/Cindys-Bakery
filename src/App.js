@@ -54,13 +54,48 @@ const App = () => {
   };
 
   const menuItems = [
-    { name: "5Ltr Scones", price: "R130", category: "Bulk Bakes" },
-    { name: "10Ltr Cupcakes / White Muffins", price: "R230", category: "Bulk Bakes" },
-    { name: "5Ltr Cupcakes", price: "R250", category: "Specialty" },
-    { name: "20Ltr Scones", price: "R350", category: "Bulk Bakes" },
-    { name: "5Ltr Brown Muffins (Plain)", price: "R180", category: "Muffins" },
-    { name: "5Ltr Brown Muffins (w/ Choc Chips)", price: "R220", category: "Muffins" },
-    { name: "20Ltr Muffins", price: "R450", category: "Bulk Bakes" },
+    { 
+      name: "5Ltr Scones", 
+      price: "R130", 
+      category: "Bulk Bakes",
+      description: "Fluffy, buttery scones perfect for breakfast or tea time"
+    },
+    { 
+      name: "10Ltr Cupcakes / White Muffins", 
+      price: "R230", 
+      category: "Bulk Bakes",
+      description: "Light, moist cupcakes and muffins for any occasion"
+    },
+    { 
+      name: "5Ltr Cupcakes", 
+      price: "R250", 
+      category: "Specialty",
+      description: "Premium cupcakes made with quality ingredients"
+    },
+    { 
+      name: "20Ltr Scones", 
+      price: "R350", 
+      category: "Bulk Bakes",
+      description: "Large batch perfect for events and gatherings"
+    },
+    { 
+      name: "5Ltr Brown Muffins (Plain)", 
+      price: "R180", 
+      category: "Muffins",
+      description: "Wholesome brown muffins with natural ingredients"
+    },
+    { 
+      name: "5Ltr Brown Muffins (w/ Choc Chips)", 
+      price: "R220", 
+      category: "Muffins",
+      description: "Rich chocolate chip muffins that everyone loves"
+    },
+    { 
+      name: "20Ltr Muffins", 
+      price: "R450", 
+      category: "Bulk Bakes",
+      description: "Massive batch for parties, functions and special events"
+    },
   ];
 
   const testimonials = [
@@ -157,7 +192,7 @@ const App = () => {
                 }`}
               >
                 <Phone className="w-4 h-4 mr-2" />
-                {phoneNumber}
+                Contact Us
               </a>
             </div>
 
@@ -237,36 +272,62 @@ const App = () => {
         </div>
       </section>
 
-      {/* Menu / Price List Section */}
+      {/* Menu / Price List Section - ENHANCED WITH IMAGES */}
       <section id="menu" className="py-20 px-4 bg-white relative">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-12">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
             <span className="text-blue-600 font-serif italic text-lg md:text-xl">Pricing List</span>
             <h2 className="text-3xl md:text-6xl font-serif mt-2 mb-4 text-slate-900">Our Price List</h2>
             <div className="w-16 md:w-24 h-1 bg-blue-600 mx-auto rounded-full" />
           </div>
 
-          <div className="bg-[#fcfaf7] rounded-[2rem] md:rounded-[3rem] p-5 md:p-12 border border-blue-100 shadow-inner">
-            <div className="space-y-6 md:space-y-8">
-              {menuItems.map((item, idx) => (
-                <div key={idx} className="flex flex-col xs:flex-row justify-between items-start xs:items-end group gap-1 xs:gap-0">
-                  <div className="flex-1 w-full">
-                    <div className="flex items-center gap-2">
-                      <span className="text-base md:text-xl font-bold text-blue-950 leading-tight">{item.name}</span>
-                      <div className="hidden xs:block flex-1 border-b-2 border-dotted border-blue-200 mb-1 mx-2"></div>
-                    </div>
-                    <span className="text-[10px] md:text-xs uppercase tracking-widest text-blue-400 font-extrabold">{item.category}</span>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 mb-12">
+            {menuItems.map((item, idx) => (
+              <div 
+                key={idx} 
+                className="group bg-white rounded-3xl overflow-hidden border-2 border-blue-100 hover:border-blue-300 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1"
+              >
+                <div className="relative h-48 overflow-hidden bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center">
+                  <div className="text-center p-6">
+                    <Cake className="w-16 h-16 text-blue-400 mx-auto mb-2 opacity-40" />
+                    <p className="text-blue-600 text-sm font-semibold">Image Coming Soon</p>
                   </div>
-                  <span className="text-xl md:text-2xl font-serif font-black text-blue-600 whitespace-nowrap">{item.price}</span>
-                  <div className="xs:hidden w-full border-b border-dashed border-blue-100 pt-2"></div>
+                  <div className="absolute top-3 right-3 bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider shadow-lg">
+                    {item.category}
+                  </div>
+                  <div className="absolute bottom-3 left-3 right-3">
+                    <h3 className="text-blue-900 font-bold text-lg leading-tight drop-shadow-sm">
+                      {item.name}
+                    </h3>
+                  </div>
                 </div>
-              ))}
-            </div>
-            
-            <div className="mt-10 p-5 md:p-8 bg-blue-900 rounded-2xl text-white text-center shadow-xl">
-              <p className="text-base md:text-lg font-serif italic mb-2">Also available:</p>
-              <p className="text-blue-100 text-sm md:text-base font-medium">Biscuits, Cookies, Cinnamon Muffins & Cupcakes</p>
-            </div>
+                
+                <div className="p-5">
+                  <p className="text-slate-600 text-sm mb-4 leading-relaxed min-h-[40px]">
+                    {item.description}
+                  </p>
+                  <div className="flex items-center justify-between pt-3 border-t border-blue-100">
+                    <span className="text-3xl font-serif font-black text-blue-600">
+                      {item.price}
+                    </span>
+                    <a 
+                      href={whatsappUrl}
+                      className="bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-blue-700 transition-all active:scale-95 shadow-md"
+                    >
+                      Order Now
+                    </a>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          
+          <div className="mt-12 p-8 md:p-10 bg-gradient-to-br from-blue-900 to-blue-800 rounded-3xl text-white text-center shadow-2xl border-4 border-blue-700">
+            <p className="text-xl md:text-2xl font-serif italic mb-3">Also available:</p>
+            <p className="text-blue-100 text-base md:text-lg font-medium">
+              Biscuits, Cookies, Cinnamon Muffins & Cupcakes
+            </p>
+            <p className="text-blue-300 text-sm mt-4">Contact us for custom orders and special requests</p>
           </div>
         </div>
       </section>
