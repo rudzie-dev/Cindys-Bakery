@@ -7,10 +7,7 @@ import {
   Store, 
   Instagram, 
   CheckCircle2, 
-  Download,
   MessageCircle,
-  Clock,
-  MapPin,
   Heart
 } from 'lucide-react';
 
@@ -30,17 +27,6 @@ const App = () => {
     deliveryMethod: ''
   });
 
-  // Load jsPDF from CDN dynamically to avoid build errors
-  useEffect(() => {
-    const script = document.createElement('script');
-    script.src = "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";
-    script.async = true;
-    document.body.appendChild(script);
-    return () => {
-      document.body.removeChild(script);
-    };
-  }, []);
-
   const nextStep = () => setStep((prev) => prev + 1);
   const prevStep = () => setStep((prev) => prev - 1);
 
@@ -48,62 +34,17 @@ const App = () => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  // --- PDF GENERATION ---
-  const generatePDF = () => {
-    if (!window.jspdf) {
-      console.error("jsPDF not loaded yet");
-      return;
-    }
-    
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    const date = new Date().toLocaleDateString();
-
-    // Custom PDF Styling
-    doc.setFillColor(252, 249, 246); // Background color
-    doc.rect(0, 0, 210, 297, 'F');
-    
-    doc.setFontSize(26);
-    doc.setTextColor(150, 110, 80); // Warm brown
-    doc.text(formData.businessName || "New Bakery Brand", 20, 35);
-    
-    doc.setFontSize(10);
-    doc.setTextColor(150, 150, 150);
-    doc.text(`BRAND DISCOVERY DOCUMENT • ${date}`, 20, 45);
-    
-    doc.setDrawColor(150, 110, 80);
-    doc.setLineWidth(0.5);
-    doc.line(20, 50, 190, 50);
-
-    let y = 70;
-    const details = [
-      { label: "Bakery Specialty", value: formData.specialty },
-      { label: "Brand Vibe", value: formData.vibe },
-      { label: "Our Story / Description", value: formData.description },
-      { label: "Instagram Handle", value: formData.instagram },
-      { label: "Logistics Preference", value: formData.deliveryMethod }
-    ];
-    
-    details.forEach((item) => {
-      doc.setFontSize(12);
-      doc.setFont("helvetica", "bold");
-      doc.setTextColor(80, 80, 80);
-      doc.text(item.label.toUpperCase(), 20, y);
-      
-      doc.setFont("helvetica", "normal");
-      doc.setTextColor(100, 100, 100);
-      const splitText = doc.splitTextToSize(item.value || 'Not specified', 160);
-      doc.text(splitText, 20, y + 8);
-      y += (splitText.length * 7) + 15;
-    });
-
-    doc.save(`${formData.businessName || 'bakery'}_brand_profile.pdf`);
-  };
-
+  // --- WHATSAPP LOGIC ---
   const sendWhatsApp = (number) => {
-    const text = encodeURIComponent(
-      `Hi! 🥐 I've just finished the bakery onboarding for "${formData.businessName}". I've downloaded the PDF and I'm sending it over now!`
-    );
+    // Constructing a clean text summary instead of a PDF
+    const summary = `*New Bakery Discovery!* 🥐\n\n` +
+      `*Name:* ${formData.businessName}\n` +
+      `*Specialty:* ${formData.specialty}\n` +
+      `*Vibe:* ${formData.vibe}\n` +
+      `*Instagram:* ${formData.instagram || 'N/A'}\n` +
+      `*Story/Logistics:* ${formData.deliveryMethod || 'N/A'}`;
+
+    const text = encodeURIComponent(summary);
     window.open(`https://wa.me/${number}?text=${text}`, '_blank');
   };
 
@@ -231,7 +172,7 @@ const App = () => {
       </div>
       <div className="mt-12 flex justify-between items-center">
         <button onClick={prevStep} className="text-slate-400">Back</button>
-        <button onClick={nextStep} className="px-10 py-4 bg-orange-700 text-white rounded-xl shadow-lg font-semibold hover:bg-orange-800 transition-all">Complete Profile</button>
+        <button onClick={nextStep} className="px-10 py-4 bg-orange-700 text-white rounded-xl shadow-lg font-semibold hover:bg-orange-800 transition-all">Submit Profile</button>
       </div>
     </div>
   );
@@ -241,33 +182,23 @@ const App = () => {
       <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-8">
         <CheckCircle2 className="text-green-600 w-10 h-10" />
       </div>
-      <h2 className="text-4xl font-serif text-slate-800 mb-4 tracking-tight">Beautifully done.</h2>
-      <p className="text-slate-500 mb-10 text-lg">Your brand profile is ready. Please download the PDF and send a quick ping to our team via WhatsApp below.</p>
+      <h2 className="text-4xl font-serif text-slate-800 mb-4 tracking-tight">All set!</h2>
+      <p className="text-slate-500 mb-10 text-lg">Thank you for sharing your story. To finalize the submission, please tap below to send your details to our design partners.</p>
       
-      <div className="space-y-4">
-        <button 
-          onClick={generatePDF}
-          className="w-full py-5 bg-slate-900 text-white rounded-2xl font-bold flex items-center justify-center gap-3 hover:bg-slate-800 transition-all transform hover:scale-[1.02]"
-        >
-          <Download size={22} /> Download Brand PDF
-        </button>
-
-        <div className="pt-8 mt-4">
-          <p className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em] mb-6">Notify Our Partners</p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <button 
-              onClick={() => sendWhatsApp(PARTNER_1_PHONE)}
-              className="py-4 px-6 border-2 border-green-500 text-green-700 rounded-2xl font-bold flex items-center justify-center gap-3 hover:bg-green-50 transition-all"
-            >
-              <MessageCircle size={20} /> Partner One
-            </button>
-            <button 
-              onClick={() => sendWhatsApp(PARTNER_2_PHONE)}
-              className="py-4 px-6 border-2 border-green-500 text-green-700 rounded-2xl font-bold flex items-center justify-center gap-3 hover:bg-green-50 transition-all"
-            >
-              <MessageCircle size={20} /> Partner Two
-            </button>
-          </div>
+      <div className="space-y-6">
+        <div className="grid grid-cols-1 gap-4">
+          <button 
+            onClick={() => sendWhatsApp(PARTNER_1_PHONE)}
+            className="py-5 px-6 bg-green-600 text-white rounded-2xl font-bold flex items-center justify-center gap-3 hover:bg-green-700 transition-all shadow-lg"
+          >
+            <MessageCircle size={22} /> Send to Partner One
+          </button>
+          <button 
+            onClick={() => sendWhatsApp(PARTNER_2_PHONE)}
+            className="py-5 px-6 border-2 border-green-600 text-green-700 rounded-2xl font-bold flex items-center justify-center gap-3 hover:bg-green-50 transition-all"
+          >
+            <MessageCircle size={22} /> Send to Partner Two
+          </button>
         </div>
       </div>
     </div>
