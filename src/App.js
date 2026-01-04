@@ -134,7 +134,7 @@ const App = () => {
               value={formData.topProducts}
               onChange={(e) => updateField('topProducts', e.target.value)}
               rows={4}
-              className="w-full bg-white border border-slate-100 rounded-2xl p-6 text-xl outline-none focus:ring-2 focus:ring-orange-700/20 focus:border-orange-700 transition-all shadow-sm"
+              className="w-full bg-white border border-slate-200 rounded-2xl p-6 text-xl outline-none focus:ring-2 focus:ring-orange-700/20 focus:border-orange-700 transition-all shadow-sm"
             />
             <div className="mt-12 flex justify-between items-center">
               <button onClick={prevStep} className="text-slate-400">Back</button>
@@ -157,7 +157,7 @@ const App = () => {
                   placeholder="e.g. Sage green, cream, gold"
                   value={formData.colorPalette}
                   onChange={(e) => updateField('colorPalette', e.target.value)}
-                  className="w-full p-4 bg-white border border-slate-100 rounded-xl outline-none focus:border-orange-700"
+                  className="w-full p-4 bg-white border border-slate-200 rounded-xl outline-none focus:border-orange-700"
                 />
               </div>
               <div className="space-y-4">
@@ -169,7 +169,7 @@ const App = () => {
                   placeholder="e.g. Local families, wedding planners"
                   value={formData.targetAudience}
                   onChange={(e) => updateField('targetAudience', e.target.value)}
-                  className="w-full p-4 bg-white border border-slate-100 rounded-xl outline-none focus:border-orange-700"
+                  className="w-full p-4 bg-white border border-slate-200 rounded-xl outline-none focus:border-orange-700"
                 />
               </div>
             </div>
@@ -180,7 +180,7 @@ const App = () => {
                   <button 
                     key={v} 
                     onClick={() => updateField('vibe', v)}
-                    className={`px-6 py-3 rounded-full border-2 transition-all ${formData.vibe === v ? 'bg-orange-700 text-white border-orange-700' : 'bg-white border-slate-100 text-slate-600'}`}
+                    className={`px-6 py-3 rounded-full border-2 transition-all ${formData.vibe === v ? 'bg-orange-700 text-white border-orange-700' : 'bg-white border-slate-200 text-slate-600'}`}
                   >
                     {v}
                   </button>
@@ -204,7 +204,7 @@ const App = () => {
                 <select 
                   value={formData.websiteGoals}
                   onChange={(e) => updateField('websiteGoals', e.target.value)}
-                  className="w-full p-4 bg-white border border-slate-100 rounded-xl outline-none focus:border-orange-700"
+                  className="w-full p-4 bg-white border border-slate-200 rounded-xl outline-none focus:border-orange-700"
                 >
                   <option value="">Select a goal...</option>
                   <option value="Online Ordering">Direct Online Ordering</option>
@@ -221,7 +221,7 @@ const App = () => {
                   placeholder="@yourbakery"
                   value={formData.instagram}
                   onChange={(e) => updateField('instagram', e.target.value)}
-                  className="w-full p-4 bg-white border border-slate-100 rounded-xl outline-none focus:border-orange-700"
+                  className="w-full p-4 bg-white border border-slate-200 rounded-xl outline-none focus:border-orange-700"
                 />
               </div>
 
@@ -232,7 +232,7 @@ const App = () => {
                   value={formData.deliveryMethod}
                   onChange={(e) => updateField('deliveryMethod', e.target.value)}
                   rows={2}
-                  className="w-full p-4 bg-white border border-slate-100 rounded-xl outline-none focus:border-orange-700"
+                  className="w-full p-4 bg-white border border-slate-200 rounded-xl outline-none focus:border-orange-700"
                 />
               </div>
             </div>
