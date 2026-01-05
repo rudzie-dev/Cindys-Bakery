@@ -1,315 +1,749 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  ChefHat, 
-  ChevronRight, 
-  ChevronLeft, 
   Cake, 
-  Store, 
+  Clock, 
+  MapPin, 
+  Phone, 
   Instagram, 
+  Facebook, 
+  Menu, 
+  X, 
+  ChevronLeft, 
+  ChevronRight, 
+  Star,
   CheckCircle2, 
-  MessageCircle,
   Heart,
-  RefreshCw,
-  Palette,
-  Users,
   UtensilsCrossed,
-  Globe
+  Wheat,
+  ShoppingBag
 } from 'lucide-react';
 
-// --- CONFIGURATION ---
-const PARTNER_1_PHONE = "1234567890"; 
-const PARTNER_2_PHONE = "0987654321"; 
-
 const App = () => {
-  const [step, setStep] = useState(0);
-  const [formData, setFormData] = useState({
-    businessName: '',
-    specialty: '',
-    vibe: '',
-    targetAudience: '',
-    colorPalette: '',
-    topProducts: '',
-    instagram: '',
-    deliveryMethod: '',
-    websiteGoals: ''
-  });
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [activeTestimonial, setActiveTestimonial] = useState(0);
+  const [scrolled, setScrolled] = useState(false);
 
-  // Dynamic Browser Tab Title
   useEffect(() => {
-    document.title = "Bakery Brand Discovery";
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const nextStep = () => setStep((prev) => prev + 1);
-  const prevStep = () => setStep((prev) => prev - 1);
+  const phoneNumber = "0739015521";
+  const whatsappUrl = `https://wa.me/27${phoneNumber.substring(1)}`;
 
-  const updateField = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
-
-  const startNewSession = () => {
-    setFormData({
-      businessName: '',
-      specialty: '',
-      vibe: '',
-      targetAudience: '',
-      colorPalette: '',
-      topProducts: '',
-      instagram: '',
-      deliveryMethod: '',
-      websiteGoals: ''
-    });
-    setStep(0);
-  };
-
-  const sendWhatsApp = (number) => {
-    const summary = `*NEW WEBSITE BUILD REQUEST* 🥐\n` +
-      `--------------------------\n` +
-      `*1. BRAND IDENTITY*\n` +
-      `• Name: ${formData.businessName}\n` +
-      `• Specialty: ${formData.specialty}\n` +
-      `• Vibe: ${formData.vibe}\n` +
-      `• Colors: ${formData.colorPalette}\n\n` +
-      `*2. BUSINESS DETAILS*\n` +
-      `• Audience: ${formData.targetAudience}\n` +
-      `• Top Sellers: ${formData.topProducts}\n` +
-      `• IG: ${formData.instagram || 'N/A'}\n\n` +
-      `*3. LOGISTICS & GOALS*\n` +
-      `• Process: ${formData.deliveryMethod}\n` +
-      `• Website Goal: ${formData.websiteGoals}\n` +
-      `--------------------------`;
-
-    const text = encodeURIComponent(summary);
-    window.open(`https://wa.me/${number}?text=${text}`, '_blank');
-  };
-
-  // --- STABLE RENDER COMPONENT ---
-  // We use a internal function that returns JSX rather than a full Component 
-  // to avoid the re-mounting focus bug on inputs.
-  
-  const renderContent = () => {
-    switch (step) {
-      case 0:
-        return (
-          <div className="flex flex-col items-center text-center animate-in fade-in zoom-in duration-1000">
-            <div className="w-24 h-24 bg-orange-50 rounded-full flex items-center justify-center mb-8 relative">
-              <div className="absolute inset-0 bg-orange-100 rounded-full animate-ping opacity-20"></div>
-              <ChefHat className="text-orange-700 w-12 h-12 relative z-10" />
-            </div>
-            <h1 className="text-5xl font-serif text-slate-800 mb-6 leading-tight">Your bakery deserves <br/><span className="italic text-orange-700">a beautiful home.</span></h1>
-            <p className="text-slate-500 max-w-lg text-lg mb-10 leading-relaxed">Let's gather the specific ingredients needed to build your professional website.</p>
-            <button onClick={nextStep} className="px-10 py-5 bg-orange-700 text-white rounded-2xl font-semibold hover:bg-orange-800 transition-all shadow-xl shadow-orange-100 flex items-center gap-3 group">
-              Start Discovery <ChevronRight className="group-hover:translate-x-1 transition-transform" />
-            </button>
-          </div>
-        );
-
-      case 1: // Name
-        return (
-          <div className="w-full max-w-2xl animate-in slide-in-from-bottom-8 duration-700">
-            <span className="text-orange-700 font-bold tracking-widest text-xs uppercase mb-4 block">Section 1: The Brand</span>
-            <h2 className="text-3xl md:text-4xl font-serif text-slate-800 mb-10">What's the official name of <br/>your bakery?</h2>
-            <input 
-              autoFocus
-              type="text"
-              placeholder="e.g. Flour & Soul"
-              value={formData.businessName}
-              onChange={(e) => updateField('businessName', e.target.value)}
-              className="w-full bg-transparent border-b-2 border-slate-200 py-6 text-4xl focus:border-orange-700 outline-none transition-colors text-slate-700 font-serif italic"
-            />
-            <div className="mt-16 flex justify-between items-center">
-              <button onClick={prevStep} className="text-slate-400 flex items-center gap-2"><ChevronLeft size={20}/> Back</button>
-              <button onClick={nextStep} disabled={!formData.businessName} className="px-10 py-4 bg-slate-900 text-white rounded-xl disabled:opacity-30">Continue</button>
-            </div>
-          </div>
-        );
-
-      case 2: // Specialty & Products
-        return (
-          <div className="w-full max-w-2xl animate-in fade-in duration-700">
-            <h2 className="text-3xl font-serif text-slate-800 mb-4 italic">What are your "Hero" products?</h2>
-            <p className="text-slate-500 mb-8">List 3 items you want front-and-center on your homepage.</p>
-            <textarea 
-              autoFocus
-              placeholder="1. Sourdough Boule&#10;2. Cardamom Buns&#10;3. Custom Celebration Cakes"
-              value={formData.topProducts}
-              onChange={(e) => updateField('topProducts', e.target.value)}
-              rows={4}
-              className="w-full bg-white border border-slate-200 rounded-2xl p-6 text-xl outline-none focus:ring-2 focus:ring-orange-700/20 focus:border-orange-700 transition-all shadow-sm"
-            />
-            <div className="mt-12 flex justify-between items-center">
-              <button onClick={prevStep} className="text-slate-400">Back</button>
-              <button onClick={nextStep} disabled={!formData.topProducts} className="px-10 py-4 bg-orange-700 text-white rounded-xl shadow-lg">Next</button>
-            </div>
-          </div>
-        );
-
-      case 3: // Visual Direction
-        return (
-          <div className="w-full max-w-3xl animate-in slide-in-from-right-8 duration-700">
-            <h2 className="text-3xl font-serif text-slate-800 mb-10 text-center italic">Visual Direction & Colors</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-              <div className="space-y-4">
-                <label className="text-sm font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                  <Palette size={16}/> Preferred Colors
-                </label>
-                <input 
-                  type="text" 
-                  placeholder="e.g. Sage green, cream, gold"
-                  value={formData.colorPalette}
-                  onChange={(e) => updateField('colorPalette', e.target.value)}
-                  className="w-full p-4 bg-white border border-slate-200 rounded-xl outline-none focus:border-orange-700"
-                />
-              </div>
-              <div className="space-y-4">
-                <label className="text-sm font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                  <Users size={16}/> Target Audience
-                </label>
-                <input 
-                  type="text" 
-                  placeholder="e.g. Local families, wedding planners"
-                  value={formData.targetAudience}
-                  onChange={(e) => updateField('targetAudience', e.target.value)}
-                  className="w-full p-4 bg-white border border-slate-200 rounded-xl outline-none focus:border-orange-700"
-                />
-              </div>
-            </div>
-            <div className="text-center space-y-4">
-              <p className="text-slate-500 italic">Select a brand vibe:</p>
-              <div className="flex flex-wrap justify-center gap-3">
-                {['Modern & Minimal', 'Rustic & Cozy', 'Playful & Bold', 'Classic Elegance'].map(v => (
-                  <button 
-                    key={v} 
-                    onClick={() => updateField('vibe', v)}
-                    className={`px-6 py-3 rounded-full border-2 transition-all ${formData.vibe === v ? 'bg-orange-700 text-white border-orange-700' : 'bg-white border-slate-200 text-slate-600'}`}
-                  >
-                    {v}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div className="mt-12 flex justify-between items-center">
-              <button onClick={prevStep} className="text-slate-400">Back</button>
-              <button onClick={nextStep} disabled={!formData.vibe} className="px-10 py-4 bg-slate-900 text-white rounded-xl shadow-lg">Continue</button>
-            </div>
-          </div>
-        );
-
-      case 4: // Logistics & Goals
-        return (
-          <div className="w-full max-w-2xl animate-in slide-in-from-bottom-8 duration-700">
-            <h2 className="text-3xl font-serif text-slate-800 mb-8 italic">Website Goals & Logistics</h2>
-            <div className="space-y-6">
-              <div className="space-y-2">
-                <label className="text-sm font-semibold text-slate-600 flex items-center gap-2"><Globe size={16}/> What's the main goal of the site?</label>
-                <select 
-                  value={formData.websiteGoals}
-                  onChange={(e) => updateField('websiteGoals', e.target.value)}
-                  className="w-full p-4 bg-white border border-slate-200 rounded-xl outline-none focus:border-orange-700"
-                >
-                  <option value="">Select a goal...</option>
-                  <option value="Online Ordering">Direct Online Ordering</option>
-                  <option value="Portfolio / Inquiry Only">Showcase Work & Inquiries</option>
-                  <option value="Blog & Recipes">Share Recipes & Community</option>
-                  <option value="Event Bookings">Bookings for Classes/Events</option>
-                </select>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-semibold text-slate-600 flex items-center gap-2"><Instagram size={16}/> Instagram Handle</label>
-                <input 
-                  type="text"
-                  placeholder="@yourbakery"
-                  value={formData.instagram}
-                  onChange={(e) => updateField('instagram', e.target.value)}
-                  className="w-full p-4 bg-white border border-slate-200 rounded-xl outline-none focus:border-orange-700"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-semibold text-slate-600 flex items-center gap-2"><UtensilsCrossed size={16}/> Delivery or Pickup instructions?</label>
-                <textarea 
-                  placeholder="e.g. Pickup only on Saturdays from my home kitchen in Austin..."
-                  value={formData.deliveryMethod}
-                  onChange={(e) => updateField('deliveryMethod', e.target.value)}
-                  rows={2}
-                  className="w-full p-4 bg-white border border-slate-200 rounded-xl outline-none focus:border-orange-700"
-                />
-              </div>
-            </div>
-            <div className="mt-12 flex justify-between items-center">
-              <button onClick={prevStep} className="text-slate-400">Back</button>
-              <button onClick={nextStep} className="px-10 py-4 bg-orange-700 text-white rounded-xl shadow-lg font-semibold hover:bg-orange-800 transition-all">Submit Details</button>
-            </div>
-          </div>
-        );
-
-      case 5: // Success
-        return (
-          <div className="w-full max-w-xl animate-in zoom-in duration-700 text-center bg-white p-12 rounded-[3rem] shadow-2xl shadow-orange-900/5">
-            <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-8">
-              <CheckCircle2 className="text-green-600 w-10 h-10" />
-            </div>
-            <h2 className="text-4xl font-serif text-slate-800 mb-4 tracking-tight">Strategy Complete!</h2>
-            <p className="text-slate-500 mb-10 text-lg">We now have enough detail to build a high-converting bakery site. Send the brief to the dev team below.</p>
-            
-            <div className="space-y-4">
-              <button 
-                onClick={() => sendWhatsApp(PARTNER_1_PHONE)}
-                className="w-full py-5 bg-green-600 text-white rounded-2xl font-bold flex items-center justify-center gap-3 hover:bg-green-700 transition-all shadow-lg"
-              >
-                <MessageCircle size={22} /> Send to Partner One
-              </button>
-              <button 
-                onClick={() => sendWhatsApp(PARTNER_2_PHONE)}
-                className="w-full py-5 border-2 border-green-600 text-green-700 rounded-2xl font-bold flex items-center justify-center gap-3 hover:bg-green-50 transition-all"
-              >
-                <MessageCircle size={22} /> Send to Partner Two
-              </button>
-
-              <button 
-                onClick={startNewSession}
-                className="mt-8 text-slate-400 hover:text-slate-600 text-sm flex items-center justify-center gap-2 mx-auto transition-colors"
-              >
-                <RefreshCw size={14} /> New Session
-              </button>
-            </div>
-          </div>
-        );
-      default:
-        return null;
+  // Enhanced Schema.org Structured Data for Hyper-Local SEO
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Bakery",
+    "@id": "https://cindysbakery.co.za/#bakery",
+    "name": "Cindy's Bakery",
+    "alternateName": "Cindy's Bakery Ezakheni",
+    "description": "Fresh homemade muffins, scones, cupcakes and bulk bakes in Ezakheni, KwaZulu-Natal. Specializing in 5Ltr to 20Ltr bulk orders for events, parties and families. Custom cakes and baked goods.",
+    "image": [
+      "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=1200&q=80",
+      "https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=1200&q=80"
+    ],
+    "logo": "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400&q=80",
+    "url": "https://cindysbakery.co.za",
+    "telephone": `+27${phoneNumber.substring(1)}`,
+    "priceRange": "R130 - R450",
+    "currenciesAccepted": "ZAR",
+    "paymentAccepted": "Cash, Card, EFT",
+    "servesCuisine": "Bakery",
+    "acceptsReservations": "False",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "5084 Malandela Road",
+      "addressLocality": "Ezakheni",
+      "addressRegion": "KwaZulu-Natal",
+      "postalCode": "3381",
+      "addressCountry": "ZA"
+    },
+    "geo": {
+      "@type": "GeoCoordinates",
+      "latitude": "-28.3667",
+      "longitude": "29.6833"
+    },
+    "openingHoursSpecification": [
+      {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+        "opens": "08:00",
+        "closes": "17:00"
+      }
+    ],
+    "areaServed": [
+      {
+        "@type": "City",
+        "name": "Ezakheni"
+      },
+      {
+        "@type": "State",
+        "name": "KwaZulu-Natal"
+      }
+    ],
+    "serviceArea": {
+      "@type": "GeoCircle",
+      "geoMidpoint": {
+        "@type": "GeoCoordinates",
+        "latitude": "-28.3667",
+        "longitude": "29.6833"
+      },
+      "geoRadius": "25000"
+    },
+    "hasMenu": {
+      "@type": "Menu",
+      "name": "Cindy's Bakery Menu",
+      "description": "Fresh muffins, scones, cupcakes and bulk bakes",
+      "hasMenuSection": [
+        {
+          "@type": "MenuSection",
+          "name": "Bulk Bakes",
+          "hasMenuItem": [
+            {
+              "@type": "MenuItem",
+              "name": "5Ltr Scones",
+              "description": "Fluffy, buttery scones perfect for breakfast or tea time",
+              "offers": {
+                "@type": "Offer",
+                "price": "130",
+                "priceCurrency": "ZAR"
+              }
+            },
+            {
+              "@type": "MenuItem",
+              "name": "10Ltr Cupcakes / White Muffins",
+              "description": "Light, moist cupcakes and muffins for any occasion",
+              "offers": {
+                "@type": "Offer",
+                "price": "230",
+                "priceCurrency": "ZAR"
+              }
+            },
+            {
+              "@type": "MenuItem",
+              "name": "20Ltr Scones",
+              "description": "Large batch perfect for events and gatherings",
+              "offers": {
+                "@type": "Offer",
+                "price": "350",
+                "priceCurrency": "ZAR"
+              }
+            },
+            {
+              "@type": "MenuItem",
+              "name": "20Ltr Muffins",
+              "description": "Massive batch for parties, functions and special events",
+              "offers": {
+                "@type": "Offer",
+                "price": "450",
+                "priceCurrency": "ZAR"
+              }
+            }
+          ]
+        },
+        {
+          "@type": "MenuSection",
+          "name": "Muffins",
+          "hasMenuItem": [
+            {
+              "@type": "MenuItem",
+              "name": "5Ltr Brown Muffins (Plain)",
+              "description": "Wholesome brown muffins with natural ingredients",
+              "offers": {
+                "@type": "Offer",
+                "price": "180",
+                "priceCurrency": "ZAR"
+              }
+            },
+            {
+              "@type": "MenuItem",
+              "name": "5Ltr Brown Muffins with Chocolate Chips",
+              "description": "Rich chocolate chip muffins that everyone loves",
+              "offers": {
+                "@type": "Offer",
+                "price": "220",
+                "priceCurrency": "ZAR"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "5",
+      "reviewCount": "3",
+      "bestRating": "5",
+      "worstRating": "1"
+    },
+    "review": [
+      {
+        "@type": "Review",
+        "author": {
+          "@type": "Person",
+          "name": "Thandi M."
+        },
+        "reviewRating": {
+          "@type": "Rating",
+          "ratingValue": "5",
+          "bestRating": "5"
+        },
+        "reviewBody": "Cindy's cakes are absolutely delicious! The chocolate chip muffins are my family's favorite. Professional and fresh."
+      },
+      {
+        "@type": "Review",
+        "author": {
+          "@type": "Person",
+          "name": "Sipho D."
+        },
+        "reviewRating": {
+          "@type": "Rating",
+          "ratingValue": "5",
+          "bestRating": "5"
+        },
+        "reviewBody": "Best scones in Ezakheni. I ordered the 20Ltr for our family gathering and everyone was asking where they came from."
+      },
+      {
+        "@type": "Review",
+        "author": {
+          "@type": "Person",
+          "name": "Elena R."
+        },
+        "reviewRating": {
+          "@type": "Rating",
+          "ratingValue": "5",
+          "bestRating": "5"
+        },
+        "reviewBody": "Wholesome and honest baking. The brown muffins are perfect for breakfast. Great service and prices."
+      }
+    ],
+    "sameAs": [
+      "https://www.facebook.com/cindysbakeryezakheni",
+      "https://www.instagram.com/cindysbakery"
+    ],
+    "potentialAction": {
+      "@type": "OrderAction",
+      "target": {
+        "@type": "EntryPoint",
+        "urlTemplate": `https://wa.me/27${phoneNumber.substring(1)}`,
+        "inLanguage": "en-ZA",
+        "actionPlatform": [
+          "http://schema.org/DesktopWebPlatform",
+          "http://schema.org/MobileWebPlatform"
+        ]
+      },
+      "deliveryMethod": "http://purl.org/goodrelations/v1#DeliveryModePickUp"
     }
   };
 
+  const menuItems = [
+    { 
+      name: "5Ltr Scones", 
+      price: "R130", 
+      category: "Bulk Bakes",
+      description: "Fluffy, buttery scones perfect for breakfast or tea time"
+    },
+    { 
+      name: "10Ltr Cupcakes / White Muffins", 
+      price: "R230", 
+      category: "Bulk Bakes",
+      description: "Light, moist cupcakes and muffins for any occasion"
+    },
+    { 
+      name: "5Ltr Cupcakes", 
+      price: "R250", 
+      category: "Specialty",
+      description: "Premium cupcakes made with quality ingredients"
+    },
+    { 
+      name: "20Ltr Scones", 
+      price: "R350", 
+      category: "Bulk Bakes",
+      description: "Large batch perfect for events and gatherings"
+    },
+    { 
+      name: "5Ltr Brown Muffins (Plain)", 
+      price: "R180", 
+      category: "Muffins",
+      description: "Wholesome brown muffins with natural ingredients"
+    },
+    { 
+      name: "5Ltr Brown Muffins (w/ Choc Chips)", 
+      price: "R220", 
+      category: "Muffins",
+      description: "Rich chocolate chip muffins that everyone loves"
+    },
+    { 
+      name: "20Ltr Muffins", 
+      price: "R450", 
+      category: "Bulk Bakes",
+      description: "Massive batch for parties, functions and special events"
+    },
+  ];
+
+  const testimonials = [
+    {
+      name: "Thandi M.",
+      text: "Cindy's cakes are absolutely delicious! The chocolate chip muffins are my family's favorite. Professional and fresh.",
+      stars: 5
+    },
+    {
+      name: "Sipho D.",
+      text: "Best scones in Ezakheni. I ordered the 20Ltr for our family gathering and everyone was asking where they came from.",
+      stars: 5
+    },
+    {
+      name: "Elena R.",
+      text: "Wholesome and honest baking. The brown muffins are perfect for breakfast. Great service and prices.",
+      stars: 5
+    }
+  ];
+
+  const categories = [
+    {
+      title: "Fresh Muffins",
+      description: "White, brown, and chocolate chip muffins baked daily for that homemade taste.",
+      icon: <UtensilsCrossed className="w-8 h-8 text-blue-600" />
+    },
+    {
+      title: "Bulk Bakes",
+      description: "5Ltr to 20Ltr buckets of scones and cupcakes, perfect for events and large families.",
+      icon: <ShoppingBag className="w-8 h-8 text-blue-500" />
+    },
+    {
+      title: "Sweet Treats",
+      description: "Biscuits, cookies, and cinnamon muffins made with the finest ingredients.",
+      icon: <Wheat className="w-8 h-8 text-blue-400" />
+    }
+  ];
+
+  const nextTestimonial = () => setActiveTestimonial((prev) => (prev + 1) % testimonials.length);
+  const prevTestimonial = () => setActiveTestimonial((prev) => (prev - 1 + testimonials.length) % testimonials.length);
+
   return (
-    <div className="min-h-screen bg-[#FCF9F6] flex flex-col items-center justify-center p-8 text-slate-900 relative overflow-hidden font-sans">
-      
-      {/* Decorative BG */}
-      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-orange-100/30 rounded-full blur-3xl pointer-events-none"></div>
-      <div className="absolute bottom-[-5%] right-[-5%] w-[30%] h-[30%] bg-amber-100/40 rounded-full blur-3xl pointer-events-none"></div>
+    <>
+      {/* SEO Meta Tags */}
+      <head>
+        <title>Cindy's Bakery Ezakheni | Fresh Muffins, Scones & Bulk Bakes in KZN</title>
+        <meta name="description" content="Cindy's Bakery in Ezakheni, KZN offers fresh homemade muffins, scones, cupcakes and bulk bakes. 5Ltr-20Ltr buckets available. Order online via WhatsApp. 5084 Malandela Road." />
+        <meta name="keywords" content="bakery Ezakheni, muffins Ezakheni, scones KZN, bulk bakes Ezakheni, cupcakes Ezakheni, Malandela Road bakery, Cindy's Bakery, fresh baked goods KZN, homemade muffins, chocolate chip muffins Ezakheni, brown muffins, bulk scones, custom cakes Ezakheni" />
+        
+        {/* Open Graph Tags for Social Media */}
+        <meta property="og:title" content="Cindy's Bakery Ezakheni | Fresh Muffins, Scones & Bulk Bakes" />
+        <meta property="og:description" content="Homemade muffins, scones, cupcakes and bulk bakes in Ezakheni. 5Ltr-20Ltr buckets. WhatsApp to order: 0739015521" />
+        <meta property="og:image" content="https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=1200&q=80" />
+        <meta property="og:url" content="https://cindysbakery.co.za" />
+        <meta property="og:type" content="business.business" />
+        <meta property="og:locale" content="en_ZA" />
+        <meta property="business:contact_data:street_address" content="5084 Malandela Road" />
+        <meta property="business:contact_data:locality" content="Ezakheni" />
+        <meta property="business:contact_data:region" content="KwaZulu-Natal" />
+        <meta property="business:contact_data:postal_code" content="3381" />
+        <meta property="business:contact_data:country_name" content="South Africa" />
+        
+        {/* Twitter Card Tags */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Cindy's Bakery Ezakheni | Fresh Muffins & Bulk Bakes" />
+        <meta name="twitter:description" content="Homemade muffins, scones, cupcakes in Ezakheni, KZN. Order online via WhatsApp!" />
+        <meta name="twitter:image" content="https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=1200&q=80" />
+        
+        {/* Local Business SEO */}
+        <meta name="geo.region" content="ZA-KZN" />
+        <meta name="geo.placename" content="Ezakheni" />
+        <meta name="geo.position" content="-28.3667;29.6833" />
+        <meta name="ICBM" content="-28.3667, 29.6833" />
+        
+        {/* Additional SEO Tags */}
+        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+        <meta name="googlebot" content="index, follow" />
+        <meta name="author" content="Cindy's Bakery" />
+        <meta name="language" content="English" />
+        <meta name="revisit-after" content="7 days" />
+        <link rel="canonical" href="https://cindysbakery.co.za" />
+        
+        {/* Mobile Optimization */}
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+        <meta name="theme-color" content="#1e40af" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+      </head>
 
-      {/* Static Progress Bar */}
-      {step > 0 && step < 5 && (
-        <div className="fixed top-8 w-64 h-1 bg-slate-200 rounded-full overflow-hidden">
-          <div 
-            className="h-full bg-orange-700 transition-all duration-700 ease-out" 
-            style={{ width: `${(step / 4) * 100}%` }}
-          />
+      <div className="min-h-screen bg-[#fcfaf7] font-sans text-slate-800 overflow-x-hidden selection:bg-blue-100 antialiased">
+        <script type="application/ld+json">
+          {JSON.stringify(jsonLd)}
+        </script>
+
+      {/* Ghost Navbar */}
+      <nav 
+        className={`fixed w-full z-50 transition-all duration-300 ${
+          scrolled || isMenuOpen
+          ? "bg-white/95 backdrop-blur-md py-3 shadow-sm border-b border-blue-100" 
+          : "bg-transparent py-5"
+        }`}
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-12">
+            <div className="flex items-center gap-2 md:gap-3">
+              <div className={`p-1.5 md:p-2 rounded-full border transition-colors duration-300 ${
+                scrolled || isMenuOpen ? "bg-blue-50 border-blue-100" : "bg-white/10 border-white/20"
+              }`}>
+                <Cake className={`w-5 h-5 md:w-6 md:h-6 ${scrolled || isMenuOpen ? "text-blue-600" : "text-white"}`} />
+              </div>
+              <div className="flex flex-col">
+                <span className={`text-xl md:text-2xl font-serif font-bold tracking-tight leading-none transition-colors duration-300 ${
+                  scrolled || isMenuOpen ? "text-blue-900" : "text-white"
+                }`}>
+                  Cindy's Bakery
+                </span>
+                <span className={`text-[9px] md:text-[10px] uppercase tracking-[0.2em] font-bold mt-1 transition-colors duration-300 ${
+                  scrolled || isMenuOpen ? "text-blue-500" : "text-blue-100/80"
+                }`}>
+                  Ezakheni • KZN
+                </span>
+              </div>
+            </div>
+
+            <div className={`hidden md:flex space-x-10 font-medium transition-colors duration-300 ${
+              scrolled ? "text-slate-500" : "text-white/90"
+            }`}>
+              <a href="#hero" className="hover:text-blue-400 transition-colors">Home</a>
+              <a href="#menu" className="hover:text-blue-400 transition-colors">Menu</a>
+              <a href="#testimonials" className="hover:text-blue-400 transition-colors">Testimonials</a>
+              <a href="#contact" className="hover:text-blue-400 transition-colors">Order</a>
+            </div>
+
+            <div className="hidden md:block">
+              <a 
+                href={whatsappUrl} 
+                className={`inline-flex items-center px-6 py-2.5 rounded-xl font-bold transition-all shadow-md active:scale-95 ${
+                  scrolled 
+                  ? "bg-emerald-600 text-white hover:bg-emerald-700" 
+                  : "bg-white/20 text-white backdrop-blur-md hover:bg-white/30 border border-white/30"
+                }`}
+              >
+                <Phone className="w-4 h-4 mr-2" />
+                Contact Us
+              </a>
+            </div>
+
+            <div className="md:hidden">
+              <button 
+                onClick={() => setIsMenuOpen(!isMenuOpen)} 
+                className={`p-3 rounded-xl transition-colors active:scale-90 ${
+                  scrolled || isMenuOpen ? "text-blue-900 bg-blue-50" : "text-white bg-white/10 backdrop-blur-sm"
+                }`}
+                aria-label="Toggle menu"
+              >
+                {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+              </button>
+            </div>
+          </div>
         </div>
-      )}
 
-      {/* Experience Container */}
-      <div className="w-full flex items-center justify-center z-10">
-        {renderContent()}
-      </div>
+        {/* Mobile Menu Overlay */}
+        <div className={`md:hidden absolute top-full left-0 w-full bg-white border-b border-blue-100 transition-all duration-300 ease-in-out origin-top ${
+          isMenuOpen ? "scale-y-100 opacity-100 visible" : "scale-y-0 opacity-0 invisible"
+        }`}>
+          <div className="px-6 py-8 flex flex-col space-y-6 text-center">
+            <a href="#hero" className="text-xl text-slate-700 font-bold py-2 active:bg-blue-50 rounded-lg" onClick={() => setIsMenuOpen(false)}>Home</a>
+            <a href="#menu" className="text-xl text-slate-700 font-bold py-2 active:bg-blue-50 rounded-lg" onClick={() => setIsMenuOpen(false)}>Menu</a>
+            <a href="#testimonials" className="text-xl text-slate-700 font-bold py-2 active:bg-blue-50 rounded-lg" onClick={() => setIsMenuOpen(false)}>Testimonials</a>
+            <a href="#contact" className="text-xl text-slate-700 font-bold py-2 active:bg-blue-50 rounded-lg" onClick={() => setIsMenuOpen(false)}>Order</a>
+            <a 
+              href={whatsappUrl} 
+              className="bg-emerald-600 text-white py-4 rounded-2xl font-bold shadow-lg active:scale-95 flex items-center justify-center gap-2"
+            >
+              <Phone size={20} />
+              WhatsApp: {phoneNumber}
+            </a>
+          </div>
+        </div>
+      </nav>
 
-      {/* Ambient Icons */}
-      <div className="fixed bottom-12 left-12 opacity-5 animate-pulse hidden xl:block">
-        <UtensilsCrossed size={180} />
+      {/* Hero Section */}
+      <section id="hero" className="relative min-h-[100svh] flex items-center justify-center overflow-hidden" itemScope itemType="https://schema.org/LocalBusiness">
+        <meta itemProp="name" content="Cindy's Bakery" />
+        <meta itemProp="telephone" content="+27739015521" />
+        <meta itemProp="priceRange" content="R130 - R450" />
+        <div itemProp="address" itemScope itemType="https://schema.org/PostalAddress">
+          <meta itemProp="streetAddress" content="5084 Malandela Road" />
+          <meta itemProp="addressLocality" content="Ezakheni" />
+          <meta itemProp="addressRegion" content="KwaZulu-Natal" />
+          <meta itemProp="postalCode" content="3381" />
+          <meta itemProp="addressCountry" content="ZA" />
+        </div>
+        <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(#2563eb 1px, transparent 1px)', backgroundSize: '32px 32px' }}></div>
+        
+        <div className="absolute inset-0">
+          <div className="w-full h-full relative">
+            <img 
+              src="https://images.unsplash.com/photo-1558961363-fa8fdf82db35?q=80&w=2000" 
+              alt="Fresh homemade muffins and baked goods at Cindy's Bakery in Ezakheni, KwaZulu-Natal" 
+              itemProp="image"
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-b from-blue-950/70 via-blue-950/50 to-[#fcfaf7]" />
+          </div>
+        </div>
+        
+        <div className="relative text-center px-4 max-w-4xl mx-auto pt-20 pb-12">
+          <div className="inline-block px-4 py-1.5 bg-blue-600 text-white text-[10px] md:text-xs font-bold tracking-[0.3em] uppercase rounded-full mb-6 shadow-lg">
+            Freshly Baked in Ezakheni
+          </div>
+          <h1 className="text-4xl xs:text-5xl md:text-8xl font-serif text-white mb-6 leading-[1.1] drop-shadow-2xl">
+            <span itemProp="name">Homemade</span> <br/><span className="text-blue-100 underline decoration-white/30 underline-offset-8">Sweet Delights</span>
+          </h1>
+          <p className="text-lg md:text-2xl text-blue-50 mb-10 font-medium max-w-2xl mx-auto drop-shadow-lg px-2" itemProp="description">
+            Muffins, scones, and cookies baked from scratch with real ingredients. Quality treats for your family and events in Ezakheni, KZN.
+          </p>
+          <div className="flex flex-col xs:flex-row gap-4 justify-center px-6">
+            <a 
+              href="#menu" 
+              className="w-full xs:w-auto bg-white text-blue-900 px-8 py-4 md:px-10 md:py-5 rounded-2xl text-base md:text-lg font-bold hover:bg-blue-50 transition-all shadow-2xl active:scale-95 border-b-4 border-blue-200"
+            >
+              View Prices
+            </a>
+            <a 
+              href={whatsappUrl} 
+              className="w-full xs:w-auto bg-white/10 backdrop-blur-md text-white border-2 border-white/40 px-8 py-4 md:px-10 md:py-5 rounded-2xl text-base md:text-lg font-bold hover:bg-white/20 transition-all active:scale-95"
+            >
+              WhatsApp Us
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* Menu / Price List Section - ENHANCED WITH IMAGES */}
+      <section id="menu" className="py-20 px-4 bg-white relative" itemScope itemType="https://schema.org/Menu">
+        <meta itemProp="name" content="Cindy's Bakery Menu" />
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <span className="text-blue-600 font-serif italic text-lg md:text-xl">Pricing List</span>
+            <h2 className="text-3xl md:text-6xl font-serif mt-2 mb-4 text-slate-900">Our Price List - Ezakheni's Best Bakery</h2>
+            <div className="w-16 md:w-24 h-1 bg-blue-600 mx-auto rounded-full" />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 mb-12">
+            {menuItems.map((item, idx) => (
+              <article 
+                key={idx} 
+                className="group bg-white rounded-3xl overflow-hidden border-2 border-blue-100 hover:border-blue-300 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1"
+                itemScope 
+                itemType="https://schema.org/MenuItem"
+              >
+                <meta itemProp="name" content={item.name} />
+                <meta itemProp="description" content={item.description} />
+                <div itemProp="offers" itemScope itemType="https://schema.org/Offer">
+                  <meta itemProp="price" content={item.price.replace('R', '')} />
+                  <meta itemProp="priceCurrency" content="ZAR" />
+                  <link itemProp="availability" href="https://schema.org/InStock" />
+                </div>
+                <div className="relative h-48 overflow-hidden bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center">
+                  <div className="text-center p-6">
+                    <Cake className="w-16 h-16 text-blue-400 mx-auto mb-2 opacity-40" />
+                    <p className="text-blue-600 text-sm font-semibold">Image Coming Soon</p>
+                  </div>
+                  <div className="absolute top-3 right-3 bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider shadow-lg">
+                    {item.category}
+                  </div>
+                  <div className="absolute bottom-3 left-3 right-3">
+                    <h3 className="text-blue-900 font-bold text-lg leading-tight drop-shadow-sm">
+                      {item.name}
+                    </h3>
+                  </div>
+                </div>
+                
+                <div className="p-5">
+                  <p className="text-slate-600 text-sm mb-4 leading-relaxed min-h-[40px]">
+                    {item.description}
+                  </p>
+                  <div className="flex items-center justify-between pt-3 border-t border-blue-100">
+                    <span className="text-3xl font-serif font-black text-blue-600">
+                      {item.price}
+                    </span>
+                    <a 
+                      href={whatsappUrl}
+                      className="bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-blue-700 transition-all active:scale-95 shadow-md"
+                      aria-label={`Order ${item.name} via WhatsApp`}
+                    >
+                      Order Now
+                    </a>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+          
+          <div className="mt-12 p-8 md:p-10 bg-gradient-to-br from-blue-900 to-blue-800 rounded-3xl text-white text-center shadow-2xl border-4 border-blue-700">
+            <p className="text-xl md:text-2xl font-serif italic mb-3">Also available:</p>
+            <p className="text-blue-100 text-base md:text-lg font-medium">
+              Biscuits, Cookies, Cinnamon Muffins & Cupcakes
+            </p>
+            <p className="text-blue-300 text-sm mt-4">Contact us for custom orders and special requests</p>
+          </div>
+        </div>
+      </section>
+
+      {/* Categories Grid */}
+      <section id="categories" className="py-20 px-4 bg-[#fcfaf7]">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-10">
+            {categories.map((cat, idx) => (
+              <div 
+                key={idx} 
+                className="group relative p-8 md:p-10 bg-white rounded-[2rem] border border-blue-50 transition-all active:scale-[0.98] md:hover:shadow-2xl md:hover:-translate-y-2"
+              >
+                <div className="mb-6 p-4 bg-blue-600 text-white rounded-2xl inline-block shadow-lg">
+                  {cat.icon}
+                </div>
+                <h3 className="text-xl md:text-2xl font-serif mb-4 text-blue-950">{cat.title}</h3>
+                <p className="text-slate-500 leading-relaxed text-base font-medium">
+                  {cat.description}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials */}
+      <section id="testimonials" className="py-24 bg-blue-900 text-white relative overflow-hidden">
+        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'url("https://www.transparenttextures.com/patterns/natural-paper.png")' }}></div>
+        
+        <div className="max-w-5xl mx-auto px-6 relative text-center">
+          <div className="flex justify-center mb-8">
+             <div className="p-3 bg-white/10 rounded-full backdrop-blur-sm">
+                <Heart className="w-6 h-6 text-blue-300 fill-blue-300" />
+             </div>
+          </div>
+
+          <div className="relative min-h-[320px] xs:min-h-[280px] flex items-center justify-center">
+            {testimonials.map((t, idx) => (
+              <div 
+                key={idx}
+                className={`transition-all duration-700 absolute inset-0 flex flex-col items-center justify-center ${
+                  idx === activeTestimonial ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8 pointer-events-none'
+                }`}
+              >
+                <div className="flex gap-1.5 mb-6">
+                  {[...Array(t.stars)].map((_, i) => <Star key={i} size={18} className="fill-yellow-400 text-yellow-400" />)}
+                </div>
+                <p className="text-xl md:text-4xl font-serif italic mb-8 leading-relaxed text-blue-50 max-w-3xl">
+                  "{t.text}"
+                </p>
+                <p className="font-bold text-blue-200 tracking-[0.2em] uppercase text-xs md:text-sm">{t.name}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="flex justify-center gap-4 mt-8">
+            <button 
+              onClick={prevTestimonial} 
+              className="p-4 rounded-2xl border border-white/20 active:bg-white active:text-blue-900 md:hover:bg-white md:hover:text-blue-900 transition-all"
+              aria-label="Previous testimonial"
+            >
+              <ChevronLeft size={24} />
+            </button>
+            <button 
+              onClick={nextTestimonial} 
+              className="p-4 rounded-2xl border border-white/20 active:bg-white active:text-blue-900 md:hover:bg-white md:hover:text-blue-900 transition-all"
+              aria-label="Next testimonial"
+            >
+              <ChevronRight size={24} />
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* Contact Section */}
+      <section id="contact" className="py-20 px-4 md:px-6 bg-white" itemScope itemType="https://schema.org/ContactPage">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+          <div className="text-center lg:text-left">
+            <span className="text-blue-600 font-bold uppercase tracking-widest text-[10px] md:text-sm">Contact Us</span>
+            <h2 className="text-4xl md:text-6xl font-serif mb-6 text-slate-900 mt-2">Place your order in Ezakheni</h2>
+            <p className="text-slate-600 mb-10 text-lg md:text-xl leading-relaxed max-w-xl mx-auto lg:mx-0">
+              Whether you need a quick batch of muffins or bulk scones for a celebration in Ezakheni or surrounding KZN areas, we've got you covered. WhatsApp is the fastest way to order!
+            </p>
+
+            <div className="grid gap-6 text-left max-w-md mx-auto lg:mx-0">
+              <div className="flex items-center gap-4 md:gap-6 bg-blue-50/50 p-4 rounded-2xl" itemProp="address" itemScope itemType="https://schema.org/PostalAddress">
+                <div className="p-3 bg-blue-100 rounded-xl">
+                  <MapPin className="text-blue-600 w-5 h-5 md:w-6 md:h-6" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-blue-950 text-sm md:text-base">Address</h4>
+                  <p className="text-slate-500 text-sm md:text-lg">
+                    <span itemProp="streetAddress">5084 Malandela Road</span>, <span itemProp="addressLocality">Ezakheni</span>
+                  </p>
+                  <meta itemProp="addressRegion" content="KwaZulu-Natal" />
+                  <meta itemProp="postalCode" content="3381" />
+                  <meta itemProp="addressCountry" content="ZA" />
+                </div>
+              </div>
+              <div className="flex items-center gap-4 md:gap-6 bg-blue-50/50 p-4 rounded-2xl">
+                <div className="p-3 bg-blue-100 rounded-xl">
+                  <Phone className="text-blue-600 w-5 h-5 md:w-6 md:h-6" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-blue-950 text-sm md:text-base">Phone / WhatsApp</h4>
+                  <p className="text-slate-500 text-sm md:text-lg" itemProp="telephone">{phoneNumber}</p>
+                </div>
+              </div>
+            </div>
+            
+            <a 
+              href={whatsappUrl} 
+              className="inline-flex w-full md:w-auto items-center justify-center mt-10 bg-emerald-600 text-white px-8 py-5 md:px-12 md:py-6 rounded-2xl md:rounded-3xl font-bold text-lg md:text-xl hover:bg-emerald-700 transition-all shadow-xl active:scale-95"
+            >
+              <Phone className="w-5 h-5 md:w-6 md:h-6 mr-3" />
+              Chat on WhatsApp
+            </a>
+          </div>
+
+          <div className="bg-[#fcfaf7] p-6 md:p-14 rounded-[2rem] md:rounded-[3rem] border border-blue-100 relative shadow-inner">
+            <h3 className="text-2xl md:text-3xl font-serif text-blue-950 mb-6 md:mb-8 text-center">Quick Inquiry</h3>
+            <form className="space-y-4 md:space-y-6" onSubmit={(e) => e.preventDefault()}>
+              <input type="text" placeholder="Your Name" className="w-full p-4 rounded-xl md:rounded-2xl bg-white border border-blue-100 outline-none focus:ring-2 focus:ring-blue-400 text-base" />
+              <input type="tel" placeholder="Phone Number" className="w-full p-4 rounded-xl md:rounded-2xl bg-white border border-blue-100 outline-none focus:ring-2 focus:ring-blue-400 text-base" />
+              <textarea rows="4" placeholder="What would you like to order?" className="w-full p-4 rounded-xl md:rounded-2xl bg-white border border-blue-100 outline-none focus:ring-2 focus:ring-blue-400 text-base"></textarea>
+              <button className="w-full bg-blue-600 text-white py-4 md:py-5 rounded-xl md:rounded-2xl font-bold text-base md:text-lg hover:bg-blue-700 transition-all shadow-lg active:scale-95">
+                Submit Inquiry
+              </button>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-white py-12 md:py-20 px-6 border-t border-dashed border-blue-100" itemScope itemType="https://schema.org/WPFooter">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-10 md:gap-12">
+          <div className="flex flex-col items-center md:items-start text-center md:text-left">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-1.5 bg-blue-50 rounded-lg">
+                <Cake className="w-5 h-5 text-blue-600" />
+              </div>
+              <span className="text-xl font-serif font-bold text-blue-950" itemProp="name">Cindy's Bakery</span>
+            </div>
+            <p className="text-slate-400 font-medium text-xs md:text-sm">
+              © 2024 Cindy's Bakery. Ezakheni, KwaZulu-Natal.<br/>
+              Handcrafted with local love and fresh ingredients.<br/>
+              <span className="text-[10px]">Serving Ezakheni, Ladysmith and surrounding KZN areas</span>
+            </p>
+          </div>
+
+          <div className="text-center md:text-right">
+            <p className="font-serif text-lg md:text-xl text-blue-950 mb-2">Order your fresh bakes today</p>
+            <p className="text-blue-500 font-bold tracking-widest text-[10px] md:text-xs uppercase">{phoneNumber}</p>
+            <p className="text-slate-400 text-[10px] mt-2">Bulk orders • Custom cakes • Same-day service</p>
+          </div>
+        </div>
+      </footer>
       </div>
-      <div className="fixed top-12 right-12 opacity-5 animate-pulse hidden xl:block">
-        <Cake size={180} />
-      </div>
-    </div>
+    </>
   );
 };
 
