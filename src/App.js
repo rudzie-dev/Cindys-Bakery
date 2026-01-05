@@ -16,7 +16,8 @@ import {
   Minus,
   Trash2,
   Truck,
-  Store
+  Store,
+  ArrowRight
 } from 'lucide-react';
 
 const App = () => {
@@ -57,6 +58,15 @@ const App = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Prevent body scroll when cart/menu is open
+  useEffect(() => {
+    if (isCartOpen || isMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+  }, [isCartOpen, isMenuOpen]);
 
   const menuItems = [
     { 
@@ -178,101 +188,166 @@ const App = () => {
   return (
     <div className="min-h-screen bg-[#fcfaf7] font-sans text-slate-800 selection:bg-blue-100 antialiased relative">
       
-      {/* Navbar */}
-      <nav className={`fixed w-full z-40 transition-all duration-300 ${scrolled || isMenuOpen ? "bg-white/95 backdrop-blur-md py-3 shadow-sm border-b border-blue-100" : "bg-transparent py-5"}`}>
-        <div className="max-w-7xl mx-auto px-4 flex justify-between items-center h-12">
-          <div className="flex items-center gap-2">
-            <Cake className={`w-6 h-6 ${scrolled || isMenuOpen ? "text-blue-600" : "text-white"}`} />
+      {/* Navbar - Redesigned for cleaner PC layout */}
+      <nav className={`fixed w-full z-40 transition-all duration-300 ${scrolled || isMenuOpen ? "bg-white/95 backdrop-blur-md shadow-sm border-b border-blue-100 py-2" : "bg-transparent py-4 md:py-6"}`}>
+        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+          
+          {/* Left: Brand */}
+          <div className="flex-shrink-0 flex items-center gap-3">
+            <div className={`p-2 rounded-xl transition-colors ${scrolled || isMenuOpen ? "bg-blue-50 text-blue-600" : "bg-white/10 text-white"}`}>
+               <Cake size={24} />
+            </div>
             <div className="flex flex-col">
-              <span className={`text-xl font-serif font-bold transition-colors ${scrolled || isMenuOpen ? "text-blue-900" : "text-white"}`}>Sindy's Bakery</span>
-              <span className={`text-[9px] uppercase tracking-widest font-bold ${scrolled || isMenuOpen ? "text-blue-500" : "text-blue-100/80"}`}>Ezakheni • KZN</span>
+              <span className={`text-xl font-serif font-bold transition-colors leading-none ${scrolled || isMenuOpen ? "text-blue-900" : "text-white"}`}>Sindy's Bakery</span>
+              <span className={`text-[10px] uppercase tracking-[0.2em] font-bold mt-1 ${scrolled || isMenuOpen ? "text-blue-400" : "text-blue-100/80"}`}>Ezakheni</span>
             </div>
           </div>
+
+          {/* Center: Desktop Navigation */}
+          <div className={`hidden md:flex items-center gap-1 absolute left-1/2 -translate-x-1/2 p-1.5 rounded-full transition-all duration-300 ${scrolled ? "bg-slate-100/50 backdrop-blur-sm border border-white/50" : "bg-black/20 backdrop-blur-sm border border-white/10"}`}>
+            {[
+              { label: "The Menu", href: "#menu" },
+              { label: "Our Kitchen", href: "#about" },
+              { label: "How to Order", href: "#contact" }
+            ].map((link) => (
+              <a 
+                key={link.label}
+                href={link.href} 
+                className={`px-5 py-2 rounded-full text-sm font-bold transition-all ${scrolled ? "text-slate-600 hover:bg-white hover:text-blue-600 hover:shadow-sm" : "text-white hover:bg-white/20"}`}
+              >
+                {link.label}
+              </a>
+            ))}
+          </div>
           
-          <div className="flex items-center gap-4">
-            {/* Cart Icon Mobile/Desktop */}
+          {/* Right: Actions */}
+          <div className="flex items-center gap-3">
+            {/* Cart Button */}
             <button 
               onClick={() => setIsCartOpen(true)}
-              className={`relative p-2 rounded-full transition-colors ${scrolled || isMenuOpen ? "text-blue-900 hover:bg-blue-50" : "text-white hover:bg-white/20"}`}
+              className={`relative group flex items-center gap-2 pl-3 pr-3 py-2 rounded-full transition-all hover:scale-105 active:scale-95 ${scrolled || isMenuOpen ? "bg-blue-600 text-white hover:bg-blue-700 hover:shadow-lg shadow-blue-600/20" : "bg-white text-blue-900 shadow-xl"}`}
             >
-              <ShoppingBag size={24} />
+              <ShoppingBag size={20} className={cartItemCount > 0 ? "fill-current" : ""} />
+              <span className="font-bold text-sm hidden sm:block">Basket</span>
               {cartItemCount > 0 && (
-                <span className="absolute top-0 right-0 bg-red-500 text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full border-2 border-white transform translate-x-1 -translate-y-1">
+                <span className={`ml-1 text-[10px] font-bold h-5 min-w-[1.25rem] px-1 flex items-center justify-center rounded-full ${scrolled || isMenuOpen ? "bg-white text-blue-600" : "bg-blue-600 text-white"}`}>
                   {cartItemCount}
                 </span>
               )}
             </button>
 
+            {/* Mobile Menu Toggle */}
             <div className="md:hidden">
-              <button onClick={() => setIsMenuOpen(!isMenuOpen)} className={`p-2 rounded-lg ${scrolled || isMenuOpen ? "text-blue-900 bg-blue-50" : "text-white bg-white/10"}`}>
+              <button 
+                onClick={() => setIsMenuOpen(!isMenuOpen)} 
+                className={`p-2.5 rounded-full transition-colors ${scrolled || isMenuOpen ? "text-slate-600 hover:bg-slate-100" : "text-white hover:bg-white/20"}`}
+              >
                 {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
               </button>
             </div>
           </div>
-
-          <div className={`hidden md:flex space-x-8 font-medium ${scrolled ? "text-slate-600" : "text-white"}`}>
-            <a href="#menu" className="hover:text-blue-400 transition-colors">The Menu</a>
-            <a href="#about" className="hover:text-blue-400 transition-colors">Our Kitchen</a>
-            <a href="#contact" className="hover:text-blue-400 transition-colors">How to Order</a>
-          </div>
         </div>
         
+        {/* Mobile Menu Dropdown */}
         {isMenuOpen && (
-          <div className="md:hidden bg-white border-b border-blue-100 p-6 flex flex-col space-y-4 text-center">
-            <a href="#menu" onClick={() => setIsMenuOpen(false)} className="text-xl font-bold py-2">The Menu</a>
-            <a href="#contact" onClick={() => setIsMenuOpen(false)} className="text-xl font-bold py-2">How to Order</a>
+          <div className="md:hidden absolute top-full left-0 w-full bg-white border-b border-blue-100 shadow-xl animate-in slide-in-from-top-2">
+            <div className="p-4 flex flex-col space-y-2">
+              <a href="#menu" onClick={() => setIsMenuOpen(false)} className="p-4 rounded-xl hover:bg-blue-50 text-blue-900 font-bold flex justify-between items-center">
+                The Menu <ArrowRight size={16} className="text-blue-300" />
+              </a>
+              <a href="#about" onClick={() => setIsMenuOpen(false)} className="p-4 rounded-xl hover:bg-blue-50 text-blue-900 font-bold flex justify-between items-center">
+                Our Kitchen <ArrowRight size={16} className="text-blue-300" />
+              </a>
+              <a href="#contact" onClick={() => setIsMenuOpen(false)} className="p-4 rounded-xl hover:bg-blue-50 text-blue-900 font-bold flex justify-between items-center">
+                How to Order <ArrowRight size={16} className="text-blue-300" />
+              </a>
+            </div>
           </div>
         )}
       </nav>
 
-      {/* Cart Sidebar Overlay */}
+      {/* Modern Cart Overlay - Bottom Sheet on Mobile, Sidebar on Desktop */}
       {isCartOpen && (
-        <div className="fixed inset-0 z-50 flex justify-end">
-          <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" onClick={() => setIsCartOpen(false)} />
-          <div className="relative w-full max-w-md bg-white h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-300">
-            <div className="p-6 border-b border-blue-50 flex justify-between items-center bg-blue-900 text-white">
-              <div className="flex items-center gap-3">
-                <ShoppingBag size={20} />
-                <h2 className="text-xl font-serif font-bold">Your Basket</h2>
+        <div className="fixed inset-0 z-50 flex justify-center md:justify-end items-end md:items-stretch">
+          {/* Backdrop */}
+          <div 
+            className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" 
+            onClick={() => setIsCartOpen(false)} 
+          />
+          
+          {/* Cart Panel */}
+          <div className="relative w-full md:w-[450px] bg-white h-[85vh] md:h-full shadow-2xl flex flex-col 
+                          animate-in slide-in-from-bottom duration-300 md:animate-in md:slide-in-from-right
+                          rounded-t-[2.5rem] md:rounded-none overflow-hidden">
+            
+            {/* Mobile Handle Indicator */}
+            <div className="md:hidden w-full flex justify-center pt-4 pb-1" onClick={() => setIsCartOpen(false)}>
+              <div className="w-16 h-1.5 bg-slate-200 rounded-full" />
+            </div>
+
+            {/* Header */}
+            <div className="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-white sticky top-0 z-10">
+              <div>
+                <h2 className="text-2xl font-serif font-bold text-blue-950">Your Basket</h2>
+                <p className="text-slate-400 text-sm">{cartItemCount} items selected</p>
               </div>
-              <button onClick={() => setIsCartOpen(false)} className="p-2 hover:bg-white/10 rounded-full">
-                <X size={20} />
+              <button 
+                onClick={() => setIsCartOpen(false)} 
+                className="p-2 hover:bg-slate-100 rounded-full text-slate-400 hover:text-slate-600 transition-colors"
+              >
+                <X size={24} />
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-6">
+            {/* Cart Items */}
+            <div className="flex-1 overflow-y-auto px-6 py-4">
               {cart.length === 0 ? (
-                <div className="h-full flex flex-col items-center justify-center text-slate-400 space-y-4">
-                  <ShoppingBag size={48} className="opacity-20" />
-                  <p>Your basket is empty</p>
-                  <button onClick={() => setIsCartOpen(false)} className="text-blue-600 font-bold hover:underline">
+                <div className="h-full flex flex-col items-center justify-center text-slate-400 space-y-6 text-center px-8">
+                  <div className="w-24 h-24 bg-blue-50 rounded-full flex items-center justify-center text-blue-200">
+                    <ShoppingBag size={48} />
+                  </div>
+                  <div>
+                    <h3 className="text-blue-950 font-bold text-lg mb-2">Your basket is empty</h3>
+                    <p className="text-sm">Looks like you haven't picked any treats yet.</p>
+                  </div>
+                  <button onClick={() => setIsCartOpen(false)} className="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200">
                     Browse the Menu
                   </button>
                 </div>
               ) : (
-                <div className="space-y-6">
+                <div className="space-y-4 pb-32"> {/* Extra padding for bottom fixed section */}
                   {cart.map((item) => (
-                    <div key={item.id} className="flex gap-4">
-                      <div className="w-16 h-16 bg-blue-50 rounded-xl flex items-center justify-center text-blue-300">
-                        <Cake size={24} />
+                    <div key={item.id} className="flex gap-4 p-4 rounded-2xl border border-slate-100 hover:border-blue-100 hover:bg-blue-50/30 transition-colors group">
+                      <div className="w-20 h-20 bg-blue-50 rounded-xl flex items-center justify-center text-blue-300 shrink-0">
+                        <Cake size={32} />
                       </div>
-                      <div className="flex-1">
-                        <div className="flex justify-between items-start mb-1">
-                          <h4 className="font-bold text-blue-950 line-clamp-1">{item.name}</h4>
-                          <span className="font-bold text-blue-600 text-sm">{item.price}</span>
+                      <div className="flex-1 flex flex-col justify-between">
+                        <div className="flex justify-between items-start gap-2">
+                          <h4 className="font-bold text-blue-950 line-clamp-2 leading-tight">{item.name}</h4>
+                          <span className="font-bold text-blue-600 text-sm whitespace-nowrap">{item.price}</span>
                         </div>
-                        <div className="flex items-center gap-3">
-                          <div className="flex items-center border border-slate-200 rounded-lg">
-                            <button onClick={() => updateQuantity(item.id, -1)} className="p-1 hover:bg-slate-100 text-slate-500">
+                        
+                        <div className="flex items-center justify-between mt-2">
+                           <div className="flex items-center gap-3 bg-white border border-slate-200 rounded-lg shadow-sm">
+                            <button 
+                              onClick={() => updateQuantity(item.id, -1)} 
+                              className="p-1.5 hover:bg-slate-50 text-slate-400 hover:text-blue-600 rounded-l-lg transition-colors"
+                            >
                               <Minus size={14} />
                             </button>
-                            <span className="px-2 text-sm font-medium w-6 text-center">{item.quantity}</span>
-                            <button onClick={() => updateQuantity(item.id, 1)} className="p-1 hover:bg-slate-100 text-blue-600">
+                            <span className="px-1 text-sm font-bold w-6 text-center text-blue-950">{item.quantity}</span>
+                            <button 
+                              onClick={() => updateQuantity(item.id, 1)} 
+                              className="p-1.5 hover:bg-slate-50 text-slate-400 hover:text-blue-600 rounded-r-lg transition-colors"
+                            >
                               <Plus size={14} />
                             </button>
                           </div>
-                          <button onClick={() => removeFromCart(item.id)} className="text-red-400 hover:text-red-600 ml-auto">
-                            <Trash2 size={16} />
+                          <button 
+                            onClick={() => removeFromCart(item.id)} 
+                            className="text-slate-300 hover:text-red-500 transition-colors p-2"
+                          >
+                            <Trash2 size={18} />
                           </button>
                         </div>
                       </div>
@@ -282,45 +357,36 @@ const App = () => {
               )}
             </div>
 
+            {/* Footer / Checkout */}
             {cart.length > 0 && (
-              <div className="p-6 border-t border-blue-50 bg-slate-50">
-                {/* Delivery Option */}
-                <div className="mb-6">
-                  <p className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3">Order Method</p>
-                  <div className="grid grid-cols-2 gap-3">
-                    <button 
-                      onClick={() => setDeliveryMethod('pickup')}
-                      className={`p-3 rounded-xl border flex flex-col items-center gap-2 transition-all ${deliveryMethod === 'pickup' ? 'bg-white border-blue-600 text-blue-900 shadow-sm' : 'bg-transparent border-slate-200 text-slate-400'}`}
-                    >
-                      <Store size={20} />
-                      <span className="text-sm font-bold">Collect</span>
-                    </button>
-                    <button 
-                      onClick={() => setDeliveryMethod('delivery')}
-                      className={`p-3 rounded-xl border flex flex-col items-center gap-2 transition-all ${deliveryMethod === 'delivery' ? 'bg-white border-blue-600 text-blue-900 shadow-sm' : 'bg-transparent border-slate-200 text-slate-400'}`}
-                    >
-                      <Truck size={20} />
-                      <span className="text-sm font-bold">Delivery</span>
-                    </button>
-                  </div>
-                  {deliveryMethod === 'delivery' && (
-                    <p className="text-xs text-blue-500 mt-2 text-center bg-blue-50 p-2 rounded-lg">
-                      * Delivery fees may apply depending on your location in Ezakheni.
-                    </p>
-                  )}
+              <div className="p-6 border-t border-slate-100 bg-white absolute bottom-0 w-full rounded-t-[2rem] shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
+                {/* Method Selector */}
+                <div className="flex bg-slate-100 p-1 rounded-xl mb-6">
+                  <button 
+                    onClick={() => setDeliveryMethod('pickup')}
+                    className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-bold transition-all ${deliveryMethod === 'pickup' ? 'bg-white text-blue-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                  >
+                    <Store size={16} /> Collect
+                  </button>
+                  <button 
+                    onClick={() => setDeliveryMethod('delivery')}
+                    className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-bold transition-all ${deliveryMethod === 'delivery' ? 'bg-white text-blue-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                  >
+                    <Truck size={16} /> Delivery
+                  </button>
                 </div>
 
-                <div className="flex justify-between items-center mb-4 text-lg font-bold text-blue-950">
-                  <span>Total Estimate</span>
-                  <span>R{cartTotal}</span>
+                <div className="flex justify-between items-end mb-6">
+                  <span className="text-slate-500 font-medium">Total Estimate</span>
+                  <span className="text-3xl font-serif font-bold text-blue-950">R{cartTotal}</span>
                 </div>
                 
                 <button 
                   onClick={checkoutWhatsApp}
-                  className="w-full bg-emerald-600 text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-emerald-700 transition-all shadow-lg active:scale-95"
+                  className="w-full bg-emerald-600 text-white py-4 rounded-xl font-bold flex items-center justify-center gap-3 hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-200 active:scale-95"
                 >
-                  <MessageCircle size={20} />
-                  Send Order to Sindy
+                  <MessageCircle size={22} />
+                  <span>Send Order to Sindy</span>
                 </button>
               </div>
             )}
