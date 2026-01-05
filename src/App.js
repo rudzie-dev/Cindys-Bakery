@@ -22,301 +22,147 @@ const App = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeTestimonial, setActiveTestimonial] = useState(0);
   const [scrolled, setScrolled] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
+  
+  const currentYear = new Date().getFullYear();
   const phoneNumber = "0739015521";
   const whatsappUrl = `https://wa.me/27${phoneNumber.substring(1)}`;
 
-  // Enhanced Schema.org Structured Data for Hyper-Local SEO
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "Bakery",
-    "@id": "https://cindysbakery.co.za/#bakery",
-    "name": "Cindy's Bakery",
-    "alternateName": "Cindy's Bakery Ezakheni",
-    "description": "Fresh homemade muffins, scones, cupcakes and bulk bakes in Ezakheni, KwaZulu-Natal. Specializing in 5Ltr to 20Ltr bulk orders for events, parties and families. Custom cakes and baked goods.",
-    "image": [
-      "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=1200&q=80",
-      "https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=1200&q=80"
-    ],
-    "logo": "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400&q=80",
-    "url": "https://cindysbakery.co.za",
-    "telephone": `+27${phoneNumber.substring(1)}`,
-    "priceRange": "R130 - R450",
-    "currenciesAccepted": "ZAR",
-    "paymentAccepted": "Cash, Card, EFT",
-    "servesCuisine": "Bakery",
-    "acceptsReservations": "False",
-    "address": {
-      "@type": "PostalAddress",
-      "streetAddress": "5084 Malandela Road",
-      "addressLocality": "Ezakheni",
-      "addressRegion": "KwaZulu-Natal",
-      "postalCode": "3381",
-      "addressCountry": "ZA"
-    },
-    "geo": {
-      "@type": "GeoCoordinates",
-      "latitude": "-28.3667",
-      "longitude": "29.6833"
-    },
-    "openingHoursSpecification": [
-      {
-        "@type": "OpeningHoursSpecification",
-        "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
-        "opens": "08:00",
-        "closes": "17:00"
+  // Side effect to manage SEO head tags and JSON-LD to avoid DOM nesting errors
+  useEffect(() => {
+    // 1. Update Document Title
+    document.title = "Sindy's Bakery Ezakheni | The Warmth of Home Baking in KZN";
+
+    // 2. Add/Update Meta Tags
+    const metaDescriptions = {
+      "description": "Sindy's Bakery in Ezakheni offers heartwarming homemade muffins, scones, and bulk bakes. Taste the love in every bite. Order 5Ltr-20Ltr buckets for your family today.",
+      "keywords": "bakery Ezakheni, home baking KZN, comfort food Ezakheni, Sindy's Bakery, fresh scones, bulk muffins, family events catering, Malandela Road bakery, homemade biscuits",
+      "viewport": "width=device-width, initial-scale=1.0, maximum-scale=5.0",
+      "theme-color": "#1e40af"
+    };
+
+    Object.entries(metaDescriptions).forEach(([name, content]) => {
+      let el = document.querySelector(`meta[name="${name}"]`);
+      if (!el) {
+        el = document.createElement('meta');
+        el.name = name;
+        document.head.appendChild(el);
       }
-    ],
-    "areaServed": [
-      {
-        "@type": "City",
-        "name": "Ezakheni"
-      },
-      {
-        "@type": "State",
-        "name": "KwaZulu-Natal"
+      el.content = content;
+    });
+
+    // 3. Structured Data (JSON-LD)
+    const jsonLd = {
+      "@context": "https://schema.org",
+      "@type": "Bakery",
+      "name": "Sindy's Bakery",
+      "description": "Baking memories with fresh homemade muffins, scones, and bulk bakes in Ezakheni. Made with love.",
+      "url": "https://sindysbakery.co.za",
+      "telephone": `+27${phoneNumber.substring(1)}`,
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "5084 Malandela Road",
+        "addressLocality": "Ezakheni",
+        "addressRegion": "KwaZulu-Natal",
+        "postalCode": "3381",
+        "addressCountry": "ZA"
       }
-    ],
-    "serviceArea": {
-      "@type": "GeoCircle",
-      "geoMidpoint": {
-        "@type": "GeoCoordinates",
-        "latitude": "-28.3667",
-        "longitude": "29.6833"
-      },
-      "geoRadius": "25000"
-    },
-    "hasMenu": {
-      "@type": "Menu",
-      "name": "Cindy's Bakery Menu",
-      "description": "Fresh muffins, scones, cupcakes and bulk bakes",
-      "hasMenuSection": [
-        {
-          "@type": "MenuSection",
-          "name": "Bulk Bakes",
-          "hasMenuItem": [
-            {
-              "@type": "MenuItem",
-              "name": "5Ltr Scones",
-              "description": "Fluffy, buttery scones perfect for breakfast or tea time",
-              "offers": {
-                "@type": "Offer",
-                "price": "130",
-                "priceCurrency": "ZAR"
-              }
-            },
-            {
-              "@type": "MenuItem",
-              "name": "10Ltr Cupcakes / White Muffins",
-              "description": "Light, moist cupcakes and muffins for any occasion",
-              "offers": {
-                "@type": "Offer",
-                "price": "230",
-                "priceCurrency": "ZAR"
-              }
-            },
-            {
-              "@type": "MenuItem",
-              "name": "20Ltr Scones",
-              "description": "Large batch perfect for events and gatherings",
-              "offers": {
-                "@type": "Offer",
-                "price": "350",
-                "priceCurrency": "ZAR"
-              }
-            },
-            {
-              "@type": "MenuItem",
-              "name": "20Ltr Muffins",
-              "description": "Massive batch for parties, functions and special events",
-              "offers": {
-                "@type": "Offer",
-                "price": "450",
-                "priceCurrency": "ZAR"
-              }
-            }
-          ]
-        },
-        {
-          "@type": "MenuSection",
-          "name": "Muffins",
-          "hasMenuItem": [
-            {
-              "@type": "MenuItem",
-              "name": "5Ltr Brown Muffins (Plain)",
-              "description": "Wholesome brown muffins with natural ingredients",
-              "offers": {
-                "@type": "Offer",
-                "price": "180",
-                "priceCurrency": "ZAR"
-              }
-            },
-            {
-              "@type": "MenuItem",
-              "name": "5Ltr Brown Muffins with Chocolate Chips",
-              "description": "Rich chocolate chip muffins that everyone loves",
-              "offers": {
-                "@type": "Offer",
-                "price": "220",
-                "priceCurrency": "ZAR"
-              }
-            }
-          ]
-        }
-      ]
-    },
-    "aggregateRating": {
-      "@type": "AggregateRating",
-      "ratingValue": "5",
-      "reviewCount": "3",
-      "bestRating": "5",
-      "worstRating": "1"
-    },
-    "review": [
-      {
-        "@type": "Review",
-        "author": {
-          "@type": "Person",
-          "name": "Thandi M."
-        },
-        "reviewRating": {
-          "@type": "Rating",
-          "ratingValue": "5",
-          "bestRating": "5"
-        },
-        "reviewBody": "Cindy's cakes are absolutely delicious! The chocolate chip muffins are my family's favorite. Professional and fresh."
-      },
-      {
-        "@type": "Review",
-        "author": {
-          "@type": "Person",
-          "name": "Sipho D."
-        },
-        "reviewRating": {
-          "@type": "Rating",
-          "ratingValue": "5",
-          "bestRating": "5"
-        },
-        "reviewBody": "Best scones in Ezakheni. I ordered the 20Ltr for our family gathering and everyone was asking where they came from."
-      },
-      {
-        "@type": "Review",
-        "author": {
-          "@type": "Person",
-          "name": "Elena R."
-        },
-        "reviewRating": {
-          "@type": "Rating",
-          "ratingValue": "5",
-          "bestRating": "5"
-        },
-        "reviewBody": "Wholesome and honest baking. The brown muffins are perfect for breakfast. Great service and prices."
-      }
-    ],
-    "sameAs": [
-      "https://www.facebook.com/cindysbakeryezakheni",
-      "https://www.instagram.com/cindysbakery"
-    ],
-    "potentialAction": {
-      "@type": "OrderAction",
-      "target": {
-        "@type": "EntryPoint",
-        "urlTemplate": `https://wa.me/27${phoneNumber.substring(1)}`,
-        "inLanguage": "en-ZA",
-        "actionPlatform": [
-          "http://schema.org/DesktopWebPlatform",
-          "http://schema.org/MobileWebPlatform"
-        ]
-      },
-      "deliveryMethod": "http://purl.org/goodrelations/v1#DeliveryModePickUp"
+    };
+
+    let scriptTag = document.getElementById('bakery-jsonld');
+    if (!scriptTag) {
+      scriptTag = document.createElement('script');
+      scriptTag.id = 'bakery-jsonld';
+      scriptTag.type = 'application/ld+json';
+      document.head.appendChild(scriptTag);
     }
-  };
+    scriptTag.text = JSON.stringify(jsonLd);
+
+    // Scroll listener
+    const handleScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener('scroll', handleScroll);
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
 
   const menuItems = [
     { 
       name: "5Ltr Scones", 
       price: "R130", 
-      category: "Bulk Bakes",
-      description: "Fluffy, buttery scones perfect for breakfast or tea time"
+      category: "Family Favourites",
+      description: "Warm, golden scones that taste just like Sunday morning."
     },
     { 
       name: "10Ltr Cupcakes / White Muffins", 
       price: "R230", 
-      category: "Bulk Bakes",
-      description: "Light, moist cupcakes and muffins for any occasion"
+      category: "Family Favourites",
+      description: "Little bites of joy to share with the ones you love."
     },
     { 
       name: "5Ltr Cupcakes", 
       price: "R250", 
-      category: "Specialty",
-      description: "Premium cupcakes made with quality ingredients"
+      category: "Specialty Treats",
+      description: "Beautifully baked treats that make any day feel special."
     },
     { 
       name: "20Ltr Scones", 
       price: "R350", 
-      category: "Bulk Bakes",
-      description: "Large batch perfect for events and gatherings"
+      category: "Big Gatherings",
+      description: "A generous bucket of comfort for your big family events."
     },
     { 
       name: "5Ltr Brown Muffins (Plain)", 
       price: "R180", 
-      category: "Muffins",
-      description: "Wholesome brown muffins with natural ingredients"
+      category: "Wholesome Goodness",
+      description: "Simple, earthy, and made with care—wholesome goodness."
     },
     { 
       name: "5Ltr Brown Muffins (w/ Choc Chips)", 
       price: "R220", 
-      category: "Muffins",
-      description: "Rich chocolate chip muffins that everyone loves"
+      category: "Wholesome Goodness",
+      description: "A warm hug in a muffin—rich chocolate meets home baking."
     },
     { 
       name: "20Ltr Muffins", 
       price: "R450", 
-      category: "Bulk Bakes",
-      description: "Massive batch for parties, functions and special events"
+      category: "Big Gatherings",
+      description: "Enough sweetness to make every guest smile at your party."
     },
   ];
 
   const testimonials = [
     {
       name: "Thandi M.",
-      text: "Cindy's cakes are absolutely delicious! The chocolate chip muffins are my family's favorite. Professional and fresh.",
+      text: "Sindy's baking reminds me of home. The chocolate chip muffins are pure happiness! You can taste the care in every bite.",
       stars: 5
     },
     {
       name: "Sipho D.",
-      text: "Best scones in Ezakheni. I ordered the 20Ltr for our family gathering and everyone was asking where they came from.",
+      text: "Sindy puts her heart into these scones. I ordered the 20Ltr for our family reunion and it brought us all together.",
       stars: 5
     },
     {
       name: "Elena R.",
-      text: "Wholesome and honest baking. The brown muffins are perfect for breakfast. Great service and prices.",
+      text: "Honest, heartwarming baking. The brown muffins are perfect for breakfast with the kids. Truly made with love.",
       stars: 5
     }
   ];
 
   const categories = [
     {
-      title: "Fresh Muffins",
-      description: "White, brown, and chocolate chip muffins baked daily for that homemade taste.",
+      title: "Oven Fresh Daily",
+      description: "We wake up early to bake, so you can start your day with the warmth of fresh muffins.",
       icon: <UtensilsCrossed className="w-8 h-8 text-blue-600" />
     },
     {
-      title: "Bulk Bakes",
-      description: "5Ltr to 20Ltr buckets of scones and cupcakes, perfect for events and large families.",
+      title: "Family Buckets",
+      description: "Generous 5Ltr to 20Ltr buckets, because happiness is meant to be shared with family.",
       icon: <ShoppingBag className="w-8 h-8 text-blue-500" />
     },
     {
-      title: "Sweet Treats",
-      description: "Biscuits, cookies, and cinnamon muffins made with the finest ingredients.",
+      title: "Sweet Memories",
+      description: "Biscuits and cookies that taste just like the ones Grandma used to make.",
       icon: <Wheat className="w-8 h-8 text-blue-400" />
     }
   ];
@@ -325,59 +171,8 @@ const App = () => {
   const prevTestimonial = () => setActiveTestimonial((prev) => (prev - 1 + testimonials.length) % testimonials.length);
 
   return (
-    <>
-      {/* SEO Meta Tags */}
-      <head>
-        <title>Cindy's Bakery Ezakheni | Fresh Muffins, Scones & Bulk Bakes in KZN</title>
-        <meta name="description" content="Cindy's Bakery in Ezakheni, KZN offers fresh homemade muffins, scones, cupcakes and bulk bakes. 5Ltr-20Ltr buckets available. Order online via WhatsApp. 5084 Malandela Road." />
-        <meta name="keywords" content="bakery Ezakheni, muffins Ezakheni, scones KZN, bulk bakes Ezakheni, cupcakes Ezakheni, Malandela Road bakery, Cindy's Bakery, fresh baked goods KZN, homemade muffins, chocolate chip muffins Ezakheni, brown muffins, bulk scones, custom cakes Ezakheni" />
-        
-        {/* Open Graph Tags for Social Media */}
-        <meta property="og:title" content="Cindy's Bakery Ezakheni | Fresh Muffins, Scones & Bulk Bakes" />
-        <meta property="og:description" content="Homemade muffins, scones, cupcakes and bulk bakes in Ezakheni. 5Ltr-20Ltr buckets. WhatsApp to order: 0739015521" />
-        <meta property="og:image" content="https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=1200&q=80" />
-        <meta property="og:url" content="https://cindysbakery.co.za" />
-        <meta property="og:type" content="business.business" />
-        <meta property="og:locale" content="en_ZA" />
-        <meta property="business:contact_data:street_address" content="5084 Malandela Road" />
-        <meta property="business:contact_data:locality" content="Ezakheni" />
-        <meta property="business:contact_data:region" content="KwaZulu-Natal" />
-        <meta property="business:contact_data:postal_code" content="3381" />
-        <meta property="business:contact_data:country_name" content="South Africa" />
-        
-        {/* Twitter Card Tags */}
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Cindy's Bakery Ezakheni | Fresh Muffins & Bulk Bakes" />
-        <meta name="twitter:description" content="Homemade muffins, scones, cupcakes in Ezakheni, KZN. Order online via WhatsApp!" />
-        <meta name="twitter:image" content="https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=1200&q=80" />
-        
-        {/* Local Business SEO */}
-        <meta name="geo.region" content="ZA-KZN" />
-        <meta name="geo.placename" content="Ezakheni" />
-        <meta name="geo.position" content="-28.3667;29.6833" />
-        <meta name="ICBM" content="-28.3667, 29.6833" />
-        
-        {/* Additional SEO Tags */}
-        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
-        <meta name="googlebot" content="index, follow" />
-        <meta name="author" content="Cindy's Bakery" />
-        <meta name="language" content="English" />
-        <meta name="revisit-after" content="7 days" />
-        <link rel="canonical" href="https://cindysbakery.co.za" />
-        
-        {/* Mobile Optimization */}
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
-        <meta name="theme-color" content="#1e40af" />
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-      </head>
-
-      <div className="min-h-screen bg-[#fcfaf7] font-sans text-slate-800 overflow-x-hidden selection:bg-blue-100 antialiased">
-        <script type="application/ld+json">
-          {JSON.stringify(jsonLd)}
-        </script>
-
-      {/* Ghost Navbar */}
+    <div className="min-h-screen bg-[#fcfaf7] font-sans text-slate-800 overflow-x-hidden selection:bg-blue-100 antialiased">
+      {/* Navbar */}
       <nav 
         className={`fixed w-full z-50 transition-all duration-300 ${
           scrolled || isMenuOpen
@@ -397,7 +192,7 @@ const App = () => {
                 <span className={`text-xl md:text-2xl font-serif font-bold tracking-tight leading-none transition-colors duration-300 ${
                   scrolled || isMenuOpen ? "text-blue-900" : "text-white"
                 }`}>
-                  Cindy's Bakery
+                  Sindy's Bakery
                 </span>
                 <span className={`text-[9px] md:text-[10px] uppercase tracking-[0.2em] font-bold mt-1 transition-colors duration-300 ${
                   scrolled || isMenuOpen ? "text-blue-500" : "text-blue-100/80"
@@ -411,8 +206,8 @@ const App = () => {
               scrolled ? "text-slate-500" : "text-white/90"
             }`}>
               <a href="#hero" className="hover:text-blue-400 transition-colors">Home</a>
-              <a href="#menu" className="hover:text-blue-400 transition-colors">Menu</a>
-              <a href="#testimonials" className="hover:text-blue-400 transition-colors">Testimonials</a>
+              <a href="#menu" className="hover:text-blue-400 transition-colors">Our Menu</a>
+              <a href="#testimonials" className="hover:text-blue-400 transition-colors">Love Notes</a>
               <a href="#contact" className="hover:text-blue-400 transition-colors">Order</a>
             </div>
 
@@ -426,7 +221,7 @@ const App = () => {
                 }`}
               >
                 <Phone className="w-4 h-4 mr-2" />
-                Contact Us
+                Contact Sindy
               </a>
             </div>
 
@@ -450,40 +245,28 @@ const App = () => {
         }`}>
           <div className="px-6 py-8 flex flex-col space-y-6 text-center">
             <a href="#hero" className="text-xl text-slate-700 font-bold py-2 active:bg-blue-50 rounded-lg" onClick={() => setIsMenuOpen(false)}>Home</a>
-            <a href="#menu" className="text-xl text-slate-700 font-bold py-2 active:bg-blue-50 rounded-lg" onClick={() => setIsMenuOpen(false)}>Menu</a>
-            <a href="#testimonials" className="text-xl text-slate-700 font-bold py-2 active:bg-blue-50 rounded-lg" onClick={() => setIsMenuOpen(false)}>Testimonials</a>
-            <a href="#contact" className="text-xl text-slate-700 font-bold py-2 active:bg-blue-50 rounded-lg" onClick={() => setIsMenuOpen(false)}>Order</a>
+            <a href="#menu" className="text-xl text-slate-700 font-bold py-2 active:bg-blue-50 rounded-lg" onClick={() => setIsMenuOpen(false)}>Our Menu</a>
+            <a href="#testimonials" className="text-xl text-slate-700 font-bold py-2 active:bg-blue-50 rounded-lg" onClick={() => setIsMenuOpen(false)}>Love Notes</a>
+            <a href="#contact" className="text-xl text-slate-700 font-bold py-2 active:bg-blue-50 rounded-lg" onClick={() => setIsMenuOpen(false)}>Order Now</a>
             <a 
               href={whatsappUrl} 
               className="bg-emerald-600 text-white py-4 rounded-2xl font-bold shadow-lg active:scale-95 flex items-center justify-center gap-2"
             >
               <Phone size={20} />
-              WhatsApp: {phoneNumber}
+              Chat with Sindy
             </a>
           </div>
         </div>
       </nav>
 
       {/* Hero Section */}
-      <section id="hero" className="relative min-h-[100svh] flex items-center justify-center overflow-hidden" itemScope itemType="https://schema.org/LocalBusiness">
-        <meta itemProp="name" content="Cindy's Bakery" />
-        <meta itemProp="telephone" content="+27739015521" />
-        <meta itemProp="priceRange" content="R130 - R450" />
-        <div itemProp="address" itemScope itemType="https://schema.org/PostalAddress">
-          <meta itemProp="streetAddress" content="5084 Malandela Road" />
-          <meta itemProp="addressLocality" content="Ezakheni" />
-          <meta itemProp="addressRegion" content="KwaZulu-Natal" />
-          <meta itemProp="postalCode" content="3381" />
-          <meta itemProp="addressCountry" content="ZA" />
-        </div>
+      <section id="hero" className="relative min-h-[100svh] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(#2563eb 1px, transparent 1px)', backgroundSize: '32px 32px' }}></div>
-        
         <div className="absolute inset-0">
           <div className="w-full h-full relative">
             <img 
               src="https://images.unsplash.com/photo-1558961363-fa8fdf82db35?q=80&w=2000" 
-              alt="Fresh homemade muffins and baked goods at Cindy's Bakery in Ezakheni, KwaZulu-Natal" 
-              itemProp="image"
+              alt="Fresh homemade muffins at Sindy's Bakery" 
               className="w-full h-full object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-b from-blue-950/70 via-blue-950/50 to-[#fcfaf7]" />
@@ -492,38 +275,37 @@ const App = () => {
         
         <div className="relative text-center px-4 max-w-4xl mx-auto pt-20 pb-12">
           <div className="inline-block px-4 py-1.5 bg-blue-600 text-white text-[10px] md:text-xs font-bold tracking-[0.3em] uppercase rounded-full mb-6 shadow-lg">
-            Freshly Baked in Ezakheni
+            Baked with Love in Ezakheni
           </div>
           <h1 className="text-4xl xs:text-5xl md:text-8xl font-serif text-white mb-6 leading-[1.1] drop-shadow-2xl">
-            <span itemProp="name">Homemade</span> <br/><span className="text-blue-100 underline decoration-white/30 underline-offset-8">Sweet Delights</span>
+            The Warmth of <br/><span className="text-blue-100 underline decoration-white/30 underline-offset-8">Home in Every Bite</span>
           </h1>
-          <p className="text-lg md:text-2xl text-blue-50 mb-10 font-medium max-w-2xl mx-auto drop-shadow-lg px-2" itemProp="description">
-            Muffins, scones, and cookies baked from scratch with real ingredients. Quality treats for your family and events in Ezakheni, KZN.
+          <p className="text-lg md:text-2xl text-blue-50 mb-10 font-medium max-w-2xl mx-auto drop-shadow-lg px-2">
+            From our oven to your heart. Fresh muffins, scones, and cookies made to bring your family together.
           </p>
           <div className="flex flex-col xs:flex-row gap-4 justify-center px-6">
             <a 
               href="#menu" 
               className="w-full xs:w-auto bg-white text-blue-900 px-8 py-4 md:px-10 md:py-5 rounded-2xl text-base md:text-lg font-bold hover:bg-blue-50 transition-all shadow-2xl active:scale-95 border-b-4 border-blue-200"
             >
-              View Prices
+              See Our Treats
             </a>
             <a 
               href={whatsappUrl} 
               className="w-full xs:w-auto bg-white/10 backdrop-blur-md text-white border-2 border-white/40 px-8 py-4 md:px-10 md:py-5 rounded-2xl text-base md:text-lg font-bold hover:bg-white/20 transition-all active:scale-95"
             >
-              WhatsApp Us
+              Order on WhatsApp
             </a>
           </div>
         </div>
       </section>
 
-      {/* Menu / Price List Section - ENHANCED WITH IMAGES */}
-      <section id="menu" className="py-20 px-4 bg-white relative" itemScope itemType="https://schema.org/Menu">
-        <meta itemProp="name" content="Cindy's Bakery Menu" />
+      {/* Menu Section */}
+      <section id="menu" className="py-20 px-4 bg-white relative">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
-            <span className="text-blue-600 font-serif italic text-lg md:text-xl">Pricing List</span>
-            <h2 className="text-3xl md:text-6xl font-serif mt-2 mb-4 text-slate-900">Our Price List - Ezakheni's Best Bakery</h2>
+            <span className="text-blue-600 font-serif italic text-lg md:text-xl">Our Kitchen</span>
+            <h2 className="text-3xl md:text-6xl font-serif mt-2 mb-4 text-slate-900">Baked Fresh for Your Family</h2>
             <div className="w-16 md:w-24 h-1 bg-blue-600 mx-auto rounded-full" />
           </div>
 
@@ -532,20 +314,11 @@ const App = () => {
               <article 
                 key={idx} 
                 className="group bg-white rounded-3xl overflow-hidden border-2 border-blue-100 hover:border-blue-300 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1"
-                itemScope 
-                itemType="https://schema.org/MenuItem"
               >
-                <meta itemProp="name" content={item.name} />
-                <meta itemProp="description" content={item.description} />
-                <div itemProp="offers" itemScope itemType="https://schema.org/Offer">
-                  <meta itemProp="price" content={item.price.replace('R', '')} />
-                  <meta itemProp="priceCurrency" content="ZAR" />
-                  <link itemProp="availability" href="https://schema.org/InStock" />
-                </div>
                 <div className="relative h-48 overflow-hidden bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center">
                   <div className="text-center p-6">
                     <Cake className="w-16 h-16 text-blue-400 mx-auto mb-2 opacity-40" />
-                    <p className="text-blue-600 text-sm font-semibold">Image Coming Soon</p>
+                    <p className="text-blue-600 text-sm font-semibold">Fresh from Sindy's Oven</p>
                   </div>
                   <div className="absolute top-3 right-3 bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider shadow-lg">
                     {item.category}
@@ -568,43 +341,12 @@ const App = () => {
                     <a 
                       href={whatsappUrl}
                       className="bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-blue-700 transition-all active:scale-95 shadow-md"
-                      aria-label={`Order ${item.name} via WhatsApp`}
                     >
-                      Order Now
+                      Treat Your Family
                     </a>
                   </div>
                 </div>
               </article>
-            ))}
-          </div>
-          
-          <div className="mt-12 p-8 md:p-10 bg-gradient-to-br from-blue-900 to-blue-800 rounded-3xl text-white text-center shadow-2xl border-4 border-blue-700">
-            <p className="text-xl md:text-2xl font-serif italic mb-3">Also available:</p>
-            <p className="text-blue-100 text-base md:text-lg font-medium">
-              Biscuits, Cookies, Cinnamon Muffins & Cupcakes
-            </p>
-            <p className="text-blue-300 text-sm mt-4">Contact us for custom orders and special requests</p>
-          </div>
-        </div>
-      </section>
-
-      {/* Categories Grid */}
-      <section id="categories" className="py-20 px-4 bg-[#fcfaf7]">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-10">
-            {categories.map((cat, idx) => (
-              <div 
-                key={idx} 
-                className="group relative p-8 md:p-10 bg-white rounded-[2rem] border border-blue-50 transition-all active:scale-[0.98] md:hover:shadow-2xl md:hover:-translate-y-2"
-              >
-                <div className="mb-6 p-4 bg-blue-600 text-white rounded-2xl inline-block shadow-lg">
-                  {cat.icon}
-                </div>
-                <h3 className="text-xl md:text-2xl font-serif mb-4 text-blue-950">{cat.title}</h3>
-                <p className="text-slate-500 leading-relaxed text-base font-medium">
-                  {cat.description}
-                </p>
-              </div>
             ))}
           </div>
         </div>
@@ -613,7 +355,6 @@ const App = () => {
       {/* Testimonials */}
       <section id="testimonials" className="py-24 bg-blue-900 text-white relative overflow-hidden">
         <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'url("https://www.transparenttextures.com/patterns/natural-paper.png")' }}></div>
-        
         <div className="max-w-5xl mx-auto px-6 relative text-center">
           <div className="flex justify-center mb-8">
              <div className="p-3 bg-white/10 rounded-full backdrop-blur-sm">
@@ -641,47 +382,34 @@ const App = () => {
           </div>
 
           <div className="flex justify-center gap-4 mt-8">
-            <button 
-              onClick={prevTestimonial} 
-              className="p-4 rounded-2xl border border-white/20 active:bg-white active:text-blue-900 md:hover:bg-white md:hover:text-blue-900 transition-all"
-              aria-label="Previous testimonial"
-            >
+            <button onClick={prevTestimonial} className="p-4 rounded-2xl border border-white/20 hover:bg-white hover:text-blue-900 transition-all">
               <ChevronLeft size={24} />
             </button>
-            <button 
-              onClick={nextTestimonial} 
-              className="p-4 rounded-2xl border border-white/20 active:bg-white active:text-blue-900 md:hover:bg-white md:hover:text-blue-900 transition-all"
-              aria-label="Next testimonial"
-            >
+            <button onClick={nextTestimonial} className="p-4 rounded-2xl border border-white/20 hover:bg-white hover:text-blue-900 transition-all">
               <ChevronRight size={24} />
             </button>
           </div>
         </div>
       </section>
 
-      {/* Contact Section */}
-      <section id="contact" className="py-20 px-4 md:px-6 bg-white" itemScope itemType="https://schema.org/ContactPage">
+      {/* Contact */}
+      <section id="contact" className="py-20 px-4 md:px-6 bg-white">
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
           <div className="text-center lg:text-left">
             <span className="text-blue-600 font-bold uppercase tracking-widest text-[10px] md:text-sm">Contact Us</span>
-            <h2 className="text-4xl md:text-6xl font-serif mb-6 text-slate-900 mt-2">Place your order in Ezakheni</h2>
+            <h2 className="text-4xl md:text-6xl font-serif mb-6 text-slate-900 mt-2">Bring the sweetness home</h2>
             <p className="text-slate-600 mb-10 text-lg md:text-xl leading-relaxed max-w-xl mx-auto lg:mx-0">
-              Whether you need a quick batch of muffins or bulk scones for a celebration in Ezakheni or surrounding KZN areas, we've got you covered. WhatsApp is the fastest way to order!
+              Whether you need a batch of muffins for breakfast or bulk scones for a big family celebration in Ezakheni, Sindy is ready to bake for you.
             </p>
 
             <div className="grid gap-6 text-left max-w-md mx-auto lg:mx-0">
-              <div className="flex items-center gap-4 md:gap-6 bg-blue-50/50 p-4 rounded-2xl" itemProp="address" itemScope itemType="https://schema.org/PostalAddress">
+              <div className="flex items-center gap-4 md:gap-6 bg-blue-50/50 p-4 rounded-2xl">
                 <div className="p-3 bg-blue-100 rounded-xl">
                   <MapPin className="text-blue-600 w-5 h-5 md:w-6 md:h-6" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-blue-950 text-sm md:text-base">Address</h4>
-                  <p className="text-slate-500 text-sm md:text-lg">
-                    <span itemProp="streetAddress">5084 Malandela Road</span>, <span itemProp="addressLocality">Ezakheni</span>
-                  </p>
-                  <meta itemProp="addressRegion" content="KwaZulu-Natal" />
-                  <meta itemProp="postalCode" content="3381" />
-                  <meta itemProp="addressCountry" content="ZA" />
+                  <h4 className="font-bold text-blue-950 text-sm md:text-base">Visit Sindy's Kitchen</h4>
+                  <p className="text-slate-500 text-sm md:text-lg">5084 Malandela Road, Ezakheni</p>
                 </div>
               </div>
               <div className="flex items-center gap-4 md:gap-6 bg-blue-50/50 p-4 rounded-2xl">
@@ -689,8 +417,8 @@ const App = () => {
                   <Phone className="text-blue-600 w-5 h-5 md:w-6 md:h-6" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-blue-950 text-sm md:text-base">Phone / WhatsApp</h4>
-                  <p className="text-slate-500 text-sm md:text-lg" itemProp="telephone">{phoneNumber}</p>
+                  <h4 className="font-bold text-blue-950 text-sm md:text-base">Call or WhatsApp Sindy</h4>
+                  <p className="text-slate-500 text-sm md:text-lg">{phoneNumber}</p>
                 </div>
               </div>
             </div>
@@ -704,13 +432,13 @@ const App = () => {
             </a>
           </div>
 
-          <div className="bg-[#fcfaf7] p-6 md:p-14 rounded-[2rem] md:rounded-[3rem] border border-blue-100 relative shadow-inner">
-            <h3 className="text-2xl md:text-3xl font-serif text-blue-950 mb-6 md:mb-8 text-center">Quick Inquiry</h3>
+          <div className="bg-[#fcfaf7] p-6 md:p-14 rounded-[2rem] md:rounded-[3rem] border border-blue-100 shadow-inner">
+            <h3 className="text-2xl md:text-3xl font-serif text-blue-950 mb-6 md:mb-8 text-center">Send Sindy a Message</h3>
             <form className="space-y-4 md:space-y-6" onSubmit={(e) => e.preventDefault()}>
-              <input type="text" placeholder="Your Name" className="w-full p-4 rounded-xl md:rounded-2xl bg-white border border-blue-100 outline-none focus:ring-2 focus:ring-blue-400 text-base" />
-              <input type="tel" placeholder="Phone Number" className="w-full p-4 rounded-xl md:rounded-2xl bg-white border border-blue-100 outline-none focus:ring-2 focus:ring-blue-400 text-base" />
-              <textarea rows="4" placeholder="What would you like to order?" className="w-full p-4 rounded-xl md:rounded-2xl bg-white border border-blue-100 outline-none focus:ring-2 focus:ring-blue-400 text-base"></textarea>
-              <button className="w-full bg-blue-600 text-white py-4 md:py-5 rounded-xl md:rounded-2xl font-bold text-base md:text-lg hover:bg-blue-700 transition-all shadow-lg active:scale-95">
+              <input type="text" placeholder="Your Name" className="w-full p-4 rounded-xl bg-white border border-blue-100 outline-none focus:ring-2 focus:ring-blue-400" />
+              <input type="tel" placeholder="Phone Number" className="w-full p-4 rounded-xl bg-white border border-blue-100 outline-none focus:ring-2 focus:ring-blue-400" />
+              <textarea rows="4" placeholder="What delicious treats can Sindy bake for you?" className="w-full p-4 rounded-xl bg-white border border-blue-100 outline-none focus:ring-2 focus:ring-blue-400"></textarea>
+              <button className="w-full bg-blue-600 text-white py-4 md:py-5 rounded-xl font-bold text-base md:text-lg hover:bg-blue-700 transition-all shadow-lg active:scale-95">
                 Submit Inquiry
               </button>
             </form>
@@ -719,17 +447,17 @@ const App = () => {
       </section>
 
       {/* Footer */}
-      <footer className="bg-white py-12 md:py-20 px-6 border-t border-dashed border-blue-100" itemScope itemType="https://schema.org/WPFooter">
+      <footer className="bg-white py-12 md:py-20 px-6 border-t border-dashed border-blue-100">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-10 md:gap-12">
           <div className="flex flex-col items-center md:items-start text-center md:text-left">
             <div className="flex items-center gap-3 mb-4">
               <div className="p-1.5 bg-blue-50 rounded-lg">
                 <Cake className="w-5 h-5 text-blue-600" />
               </div>
-              <span className="text-xl font-serif font-bold text-blue-950" itemProp="name">Cindy's Bakery</span>
+              <span className="text-xl font-serif font-bold text-blue-950">Sindy's Bakery</span>
             </div>
             <p className="text-slate-400 font-medium text-xs md:text-sm">
-              © 2024 Cindy's Bakery. Ezakheni, KwaZulu-Natal.<br/>
+              © {currentYear} Sindy's Bakery. Ezakheni, KwaZulu-Natal.<br/>
               Handcrafted with local love and fresh ingredients.<br/>
               <span className="text-[10px]">Serving Ezakheni, Ladysmith and surrounding KZN areas</span>
             </p>
@@ -738,12 +466,10 @@ const App = () => {
           <div className="text-center md:text-right">
             <p className="font-serif text-lg md:text-xl text-blue-950 mb-2">Order your fresh bakes today</p>
             <p className="text-blue-500 font-bold tracking-widest text-[10px] md:text-xs uppercase">{phoneNumber}</p>
-            <p className="text-slate-400 text-[10px] mt-2">Bulk orders • Custom cakes • Same-day service</p>
           </div>
         </div>
       </footer>
-      </div>
-    </>
+    </div>
   );
 };
 
