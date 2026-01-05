@@ -37,6 +37,9 @@ const App = () => {
   useEffect(() => {
     document.title = "Sindy's Bakery Ezakheni | The Warmth of Home Baking";
 
+    // Add smooth scrolling globally
+    document.documentElement.style.scrollBehavior = 'smooth';
+
     const metaDescriptions = {
       "description": "Sindy's Bakery in Ezakheni offers heartwarming homemade muffins, scones, and bulk bakes. Made with love for your family.",
       "keywords": "bakery Ezakheni, home baking KZN, Sindy's Bakery, fresh scones, bulk muffins, Malandela Road bakery",
@@ -192,8 +195,8 @@ const App = () => {
       <nav className={`fixed w-full z-40 transition-all duration-300 ${scrolled || isMenuOpen ? "bg-white/95 backdrop-blur-md shadow-sm border-b border-blue-100 py-2" : "bg-transparent py-4 md:py-6"}`}>
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           
-          {/* Left: Brand */}
-          <div className="flex-shrink-0 flex items-center gap-3">
+          {/* Left: Brand - Linked to Top */}
+          <a href="#" className="flex-shrink-0 flex items-center gap-3 hover:opacity-90 transition-opacity">
             <div className={`p-2 rounded-xl transition-colors ${scrolled || isMenuOpen ? "bg-blue-50 text-blue-600" : "bg-white/10 text-white"}`}>
                <Cake size={24} />
             </div>
@@ -201,7 +204,7 @@ const App = () => {
               <span className={`text-xl font-serif font-bold transition-colors leading-none ${scrolled || isMenuOpen ? "text-blue-900" : "text-white"}`}>Sindy's Bakery</span>
               <span className={`text-[10px] uppercase tracking-[0.2em] font-bold mt-1 ${scrolled || isMenuOpen ? "text-blue-400" : "text-blue-100/80"}`}>Ezakheni</span>
             </div>
-          </div>
+          </a>
 
           {/* Center: Desktop Navigation */}
           <div className={`hidden md:flex items-center gap-1 absolute left-1/2 -translate-x-1/2 p-1.5 rounded-full transition-all duration-300 ${scrolled ? "bg-slate-100/50 backdrop-blur-sm border border-white/50" : "bg-black/20 backdrop-blur-sm border border-white/10"}`}>
@@ -394,8 +397,8 @@ const App = () => {
         </div>
       )}
 
-      {/* Hero */}
-      <section className="relative min-h-[90svh] flex items-center justify-center overflow-hidden">
+      {/* Hero with ID for Navigation */}
+      <section id="about" className="relative min-h-[90svh] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0">
           <img src="https://images.unsplash.com/photo-1558961363-fa8fdf82db35?q=80&w=2000" className="w-full h-full object-cover" alt="Sindy's Baking" />
           <div className="absolute inset-0 bg-gradient-to-b from-blue-950/70 via-blue-950/40 to-[#fcfaf7]" />
