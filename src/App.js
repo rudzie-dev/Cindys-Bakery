@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   Cake, 
   MapPin, 
@@ -20,11 +20,33 @@ import {
   ArrowRight
 } from 'lucide-react';
 
+// Custom Hook for Reveal Animations
+const useReveal = () => {
+  const [revealed, setRevealed] = useState(false);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setRevealed(true);
+          observer.unobserve(entry.target);
+        }
+      },
+      { threshold: 0.15 }
+    );
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, []);
+
+  return [ref, revealed];
+};
+
 const App = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [cart, setCart] = useState([]);
-  const [deliveryMethod, setDeliveryMethod] = useState('pickup'); // 'pickup' or 'delivery'
+  const [deliveryMethod, setDeliveryMethod] = useState('pickup');
   const [activeTestimonial, setActiveTestimonial] = useState(0);
   const [scrolled, setScrolled] = useState(false);
   
@@ -33,21 +55,37 @@ const App = () => {
   
   const getPrice = (priceStr) => parseInt(priceStr.replace('R', ''));
 
+  // Global Setup
   useEffect(() => {
     document.title = "Sindy's Bakery Ezakheni | The Warmth of Home Baking";
-    document.documentElement.style.scrollBehavior = 'smooth';
+    
+    // Global Smooth Scroll for all anchors
+    const handleLinkClick = (e) => {
+      const href = e.target.closest('a')?.getAttribute('href');
+      if (href?.startsWith('#')) {
+        e.preventDefault();
+        const target = document.querySelector(href);
+        if (target) {
+          const navHeight = 80;
+          const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - navHeight;
+          window.scrollTo({ top: targetPosition, behavior: 'smooth' });
+          setIsMenuOpen(false); // Close mobile menu if open
+        }
+      }
+    };
 
     const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    document.addEventListener('click', handleLinkClick);
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      document.removeEventListener('click', handleLinkClick);
+    };
   }, []);
 
   useEffect(() => {
-    if (isCartOpen || isMenuOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
+    document.body.style.overflow = (isCartOpen || isMenuOpen) ? 'hidden' : 'unset';
   }, [isCartOpen, isMenuOpen]);
 
   const menuItems = [
@@ -69,9 +107,7 @@ const App = () => {
   const addToCart = (item) => {
     setCart(prev => {
       const existing = prev.find(i => i.id === item.id);
-      if (existing) {
-        return prev.map(i => i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i);
-      }
+      if (existing) return prev.map(i => i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i);
       return [...prev, { ...item, quantity: 1 }];
     });
     setIsCartOpen(true);
@@ -79,51 +115,41 @@ const App = () => {
 
   const updateQuantity = (itemId, change) => {
     setCart(prev => prev.map(item => {
-      if (item.id === itemId) {
-        const newQuantity = Math.max(0, item.quantity + change);
-        return { ...item, quantity: newQuantity };
-      }
+      if (item.id === itemId) return { ...item, quantity: Math.max(0, item.quantity + change) };
       return item;
     }).filter(item => item.quantity > 0));
-  };
-
-  const removeFromCart = (itemId) => {
-    setCart(prev => prev.filter(item => item.id !== itemId));
-  };
-
-  const handleBrowseMenu = (e) => {
-    e.preventDefault();
-    setIsCartOpen(false);
-    setTimeout(() => {
-      const menuSection = document.getElementById('menu');
-      if (menuSection) {
-        menuSection.scrollIntoView({ behavior: 'smooth' });
-      }
-    }, 100);
   };
 
   const cartTotal = cart.reduce((sum, item) => sum + (getPrice(item.price) * item.quantity), 0);
   const cartItemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   const checkoutWhatsApp = () => {
-    if (cart.length === 0) return;
     let message = "Hello Sindy! 🧁 I'd like to place an order:%0A%0A";
     cart.forEach(item => { message += `▪️ ${item.quantity}x ${item.name} (${item.price})%0A`; });
     message += `%0A*Total Estimate: R${cartTotal}*`;
     message += `%0AMethod: ${deliveryMethod === 'delivery' ? '🚚 Delivery' : '🏪 Store Pickup'}`;
-    const url = `https://wa.me/27${phoneNumber.substring(1)}?text=${message}`;
-    window.open(url, '_blank');
+    window.open(`https://wa.me/27${phoneNumber.substring(1)}?text=${message}`, '_blank');
   };
 
+  // Section Reveal Hooks
+  const [menuRef, menuVisible] = useReveal();
+  const [contactRef, contactVisible] = useReveal();
+
   return (
-    <div className="min-h-screen bg-[#fcfaf7] font-sans text-slate-800 selection:bg-blue-100 antialiased relative">
-      
+    <div className="min-h-screen bg-[#fcfaf7] font-sans text-slate-800 antialiased relative">
+      <style>{`
+        .reveal { opacity: 0; transform: translateY(20px); transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1); }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+        .stagger-1 { transition-delay: 0.1s; }
+        .stagger-2 { transition-delay: 0.2s; }
+        .stagger-3 { transition-delay: 0.3s; }
+      `}</style>
+
       {/* Navbar */}
-      <nav className={`fixed w-full z-40 transition-all duration-300 ${scrolled || isMenuOpen ? "bg-white/95 backdrop-blur-md shadow-sm border-b border-blue-100 py-2" : "bg-transparent py-4 md:py-6"}`}>
+      <nav className={`fixed w-full z-40 transition-all duration-500 ${scrolled || isMenuOpen ? "bg-white/95 backdrop-blur-md shadow-sm border-b border-blue-100 py-2" : "bg-transparent py-6"}`}>
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          
-          <a href="#" className="flex-shrink-0 flex items-center gap-3 hover:opacity-90 transition-opacity">
-            <div className={`p-2 rounded-xl transition-colors ${scrolled || isMenuOpen ? "bg-blue-50 text-blue-600" : "bg-white/10 text-white"}`}>
+          <a href="#" className="flex items-center gap-3 group transition-transform active:scale-95">
+            <div className={`p-2 rounded-xl transition-all duration-500 group-hover:rotate-12 ${scrolled || isMenuOpen ? "bg-blue-50 text-blue-600" : "bg-white/10 text-white"}`}>
                <Cake size={24} />
             </div>
             <div className="flex flex-col">
@@ -132,21 +158,20 @@ const App = () => {
             </div>
           </a>
 
-          <div className={`hidden md:flex items-center gap-1 absolute left-1/2 -translate-x-1/2 p-1.5 rounded-full transition-all duration-300 ${scrolled ? "bg-slate-100/50 backdrop-blur-sm border border-white/50" : "bg-black/20 backdrop-blur-sm border border-white/10"}`}>
-            {[{ label: "The Menu", href: "#menu" }, { label: "Our Kitchen", href: "#about" }, { label: "How to Order", href: "#contact" }].map((link) => (
-              <a key={link.label} href={link.href} className={`px-5 py-2 rounded-full text-sm font-bold transition-all ${scrolled ? "text-slate-600 hover:bg-white hover:text-blue-600 hover:shadow-sm" : "text-white hover:bg-white/20"}`}>
+          <div className={`hidden md:flex items-center gap-1 absolute left-1/2 -translate-x-1/2 p-1.5 rounded-full transition-all duration-500 ${scrolled ? "bg-slate-100/50 backdrop-blur-sm border border-white/50" : "bg-black/10 backdrop-blur-sm"}`}>
+            {[{ label: "The Menu", href: "#menu" }, { label: "Our Kitchen", href: "#about" }, { label: "Contact", href: "#contact" }].map((link) => (
+              <a key={link.label} href={link.href} className={`px-5 py-2 rounded-full text-sm font-bold transition-all ${scrolled ? "text-slate-600 hover:bg-white hover:text-blue-600" : "text-white hover:bg-white/20"}`}>
                 {link.label}
               </a>
             ))}
           </div>
           
           <div className="flex items-center gap-3">
-            {/* FIX: Basket Icon Styling */}
             <button 
               onClick={() => setIsCartOpen(true)}
-              className={`relative group flex items-center gap-2 px-4 py-2.5 rounded-full transition-all hover:scale-105 active:scale-95 ${scrolled || isMenuOpen ? "bg-blue-600 text-white shadow-lg shadow-blue-600/20" : "bg-white text-blue-900 shadow-xl"}`}
+              className={`relative flex items-center gap-2 px-4 py-2.5 rounded-full transition-all duration-300 hover:scale-105 active:scale-95 ${scrolled || isMenuOpen ? "bg-blue-600 text-white shadow-lg shadow-blue-600/20" : "bg-white text-blue-900 shadow-xl"}`}
             >
-              <ShoppingBag size={20} strokeWidth={2.5} />
+              <ShoppingBag size={20} strokeWidth={2.5} className={cartItemCount > 0 ? "animate-bounce" : ""} />
               <span className="font-bold text-sm hidden sm:block">Basket</span>
               {cartItemCount > 0 && (
                 <span className={`flex items-center justify-center text-[10px] font-black h-5 min-w-[1.25rem] px-1 rounded-full animate-in zoom-in duration-300 ${scrolled || isMenuOpen ? "bg-white text-blue-600" : "bg-blue-600 text-white"}`}>
@@ -154,137 +179,64 @@ const App = () => {
                 </span>
               )}
             </button>
-
-            <div className="md:hidden">
-              <button onClick={() => setIsMenuOpen(!isMenuOpen)} className={`p-2.5 rounded-full transition-colors ${scrolled || isMenuOpen ? "text-slate-600 hover:bg-slate-100" : "text-white hover:bg-white/20"}`}>
-                {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-              </button>
-            </div>
+            <button onClick={() => setIsMenuOpen(!isMenuOpen)} className={`md:hidden p-2.5 rounded-full transition-colors ${scrolled || isMenuOpen ? "text-slate-600 hover:bg-slate-100" : "text-white hover:bg-white/20"}`}>
+              {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
           </div>
         </div>
-        
-        {isMenuOpen && (
-          <div className="md:hidden absolute top-full left-0 w-full bg-white border-b border-blue-100 shadow-xl">
-            <div className="p-4 flex flex-col space-y-2">
-              <a href="#menu" onClick={() => setIsMenuOpen(false)} className="p-4 rounded-xl hover:bg-blue-50 text-blue-900 font-bold flex justify-between items-center">The Menu <ArrowRight size={16} /></a>
-              <a href="#about" onClick={() => setIsMenuOpen(false)} className="p-4 rounded-xl hover:bg-blue-50 text-blue-900 font-bold flex justify-between items-center">Our Kitchen <ArrowRight size={16} /></a>
-              <a href="#contact" onClick={() => setIsMenuOpen(false)} className="p-4 rounded-xl hover:bg-blue-50 text-blue-900 font-bold flex justify-between items-center">How to Order <ArrowRight size={16} /></a>
-            </div>
-          </div>
-        )}
       </nav>
 
-      {/* Cart Drawer */}
-      {isCartOpen && (
-        <div className="fixed inset-0 z-50 flex justify-center md:justify-end items-end md:items-stretch">
-          <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={() => setIsCartOpen(false)} />
-          <div className="relative w-full md:w-[450px] bg-white h-[85vh] md:h-full shadow-2xl flex flex-col animate-in slide-in-from-bottom md:slide-in-from-right duration-300 rounded-t-[2.5rem] md:rounded-none overflow-hidden">
-            <div className="md:hidden w-full flex justify-center pt-4 pb-1" onClick={() => setIsCartOpen(false)}>
-              <div className="w-16 h-1.5 bg-slate-200 rounded-full" />
-            </div>
-            <div className="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-white sticky top-0 z-10">
-              <div>
-                <h2 className="text-2xl font-serif font-bold text-blue-950">Your Basket</h2>
-                <p className="text-slate-400 text-sm">{cartItemCount} items selected</p>
-              </div>
-              <button onClick={() => setIsCartOpen(false)} className="p-2 hover:bg-slate-100 rounded-full text-slate-400 transition-colors"><X size={24} /></button>
-            </div>
-            <div className="flex-1 overflow-y-auto px-6 py-4">
-              {cart.length === 0 ? (
-                <div className="h-full flex flex-col items-center justify-center text-slate-400 space-y-6 text-center px-8">
-                  <div className="w-24 h-24 bg-blue-50 rounded-full flex items-center justify-center text-blue-200"><ShoppingBag size={48} /></div>
-                  <h3 className="text-blue-950 font-bold text-lg mb-2">Your basket is empty</h3>
-                  <a href="#menu" onClick={handleBrowseMenu} className="bg-blue-600 text-white px-8 py-4 rounded-xl font-bold hover:bg-blue-700 shadow-lg shadow-blue-200">Browse the Menu</a>
-                </div>
-              ) : (
-                <div className="space-y-4 pb-32">
-                  {cart.map((item) => (
-                    <div key={item.id} className="flex gap-4 p-4 rounded-2xl border border-slate-100 hover:border-blue-100 hover:bg-blue-50/30 transition-colors group">
-                      <div className="w-20 h-20 bg-blue-50 rounded-xl flex items-center justify-center text-blue-300 shrink-0"><Cake size={32} /></div>
-                      <div className="flex-1 flex flex-col justify-between">
-                        <div className="flex justify-between items-start gap-2">
-                          <h4 className="font-bold text-blue-950 leading-tight">{item.name}</h4>
-                          <span className="font-bold text-blue-600 text-sm">{item.price}</span>
-                        </div>
-                        <div className="flex items-center justify-between mt-2">
-                           <div className="flex items-center gap-3 bg-white border border-slate-200 rounded-lg">
-                            <button onClick={() => updateQuantity(item.id, -1)} className="p-1.5 hover:text-blue-600"><Minus size={14} /></button>
-                            <span className="text-sm font-bold w-6 text-center">{item.quantity}</span>
-                            <button onClick={() => updateQuantity(item.id, 1)} className="p-1.5 hover:text-blue-600"><Plus size={14} /></button>
-                          </div>
-                          <button onClick={() => removeFromCart(item.id)} className="text-slate-300 hover:text-red-500 p-2"><Trash2 size={18} /></button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-            {cart.length > 0 && (
-              <div className="p-6 border-t border-slate-100 bg-white absolute bottom-0 w-full rounded-t-[2rem] shadow-2xl">
-                <div className="flex bg-slate-100 p-1 rounded-xl mb-6">
-                  <button onClick={() => setDeliveryMethod('pickup')} className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all ${deliveryMethod === 'pickup' ? 'bg-white text-blue-900 shadow-sm' : 'text-slate-500'}`}><Store size={16} className="inline mr-2" /> Collect</button>
-                  <button onClick={() => setDeliveryMethod('delivery')} className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all ${deliveryMethod === 'delivery' ? 'bg-white text-blue-900 shadow-sm' : 'text-slate-500'}`}><Truck size={16} className="inline mr-2" /> Delivery</button>
-                </div>
-                <div className="flex justify-between items-end mb-6">
-                  <span className="text-slate-500">Total Estimate</span>
-                  <span className="text-3xl font-serif font-bold text-blue-950">R{cartTotal}</span>
-                </div>
-                <button onClick={checkoutWhatsApp} className="w-full bg-emerald-600 text-white py-4 rounded-xl font-bold flex items-center justify-center gap-3 hover:bg-emerald-700 shadow-lg shadow-emerald-200 active:scale-95"><MessageCircle size={22} /> Send Order to Sindy</button>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
       {/* Hero */}
-      <section id="about" className="relative min-h-[90svh] flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0">
+      <section id="about" className="relative min-h-[100svh] flex items-center justify-center overflow-hidden">
+        <div className="absolute inset-0 scale-105 animate-[pulse_8s_infinite_alternate]">
           <img src="https://images.unsplash.com/photo-1558961363-fa8fdf82db35?q=80&w=2000" className="w-full h-full object-cover" alt="Sindy's Baking" />
-          <div className="absolute inset-0 bg-gradient-to-b from-blue-950/70 via-blue-950/40 to-[#fcfaf7]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-blue-950/80 via-blue-950/40 to-[#fcfaf7]" />
         </div>
-        <div className="relative text-center px-4 max-w-4xl pt-10">
+        <div className="relative text-center px-4 max-w-4xl pt-10 animate-in fade-in slide-in-from-bottom-8 duration-1000 ease-out">
           <div className="inline-block px-4 py-1 bg-blue-600 text-white text-[10px] font-bold tracking-widest uppercase rounded-full mb-6">Fresh from the heart of Ezakheni</div>
           <h1 className="text-5xl md:text-8xl font-serif text-white mb-6 leading-tight">The Warmth of <br/><span className="text-blue-100 italic">Home in Every Bite</span></h1>
-          <p className="text-lg md:text-2xl text-blue-50 mb-10 max-w-2xl mx-auto">No fancy factories, just Sindy's kitchen. Real ingredients, baked fresh for your family gatherings.</p>
+          <p className="text-lg md:text-2xl text-blue-50/90 mb-10 max-w-2xl mx-auto">No fancy factories, just Sindy's kitchen. Real ingredients, baked fresh for your family gatherings.</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a href="#menu" className="bg-white text-blue-900 px-10 py-5 rounded-2xl text-lg font-bold shadow-xl hover:scale-105 transition-transform">See Today's Treats</a>
-            <button onClick={() => setIsCartOpen(true)} className="bg-blue-600 text-white px-10 py-5 rounded-2xl text-lg font-bold shadow-xl flex items-center justify-center gap-2 hover:bg-blue-700 transition-colors"><ShoppingBag size={20} /> View Basket {cartItemCount > 0 && `(${cartItemCount})`}</button>
+            <a href="#menu" className="bg-white text-blue-900 px-10 py-5 rounded-2xl text-lg font-bold shadow-xl hover:scale-105 hover:shadow-2xl transition-all">See Today's Treats</a>
+            <button onClick={() => setIsCartOpen(true)} className="bg-blue-600/20 backdrop-blur-md text-white border border-white/30 px-10 py-5 rounded-2xl text-lg font-bold hover:bg-blue-600 transition-all">View Basket</button>
           </div>
         </div>
       </section>
 
-      {/* Menu */}
-      <section id="menu" className="py-24 px-4 max-w-7xl mx-auto scroll-mt-20">
-        <div className="text-center mb-16">
+      {/* Menu Grid */}
+      <section id="menu" ref={menuRef} className={`py-32 px-4 max-w-7xl mx-auto scroll-mt-20 reveal ${menuVisible ? 'visible' : ''}`}>
+        <div className="text-center mb-20 reveal stagger-1">
           <h2 className="text-4xl md:text-6xl font-serif text-blue-950 mb-4">Sindy's Oven Favorites</h2>
+          <p className="text-slate-500 font-medium">Everything is handmade and baked fresh to your order.</p>
           <div className="w-20 h-1 bg-blue-600 mx-auto mt-6 rounded-full opacity-30" />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {menuItems.map((item) => {
+          {menuItems.map((item, idx) => {
             const inCart = cart.find(c => c.id === item.id);
             return (
-              <div key={item.id} className="bg-white rounded-[2.5rem] border-2 border-blue-50 p-2 group hover:shadow-2xl transition-all duration-500 flex flex-col h-full">
-                <div className="bg-blue-50 h-52 rounded-[2.2rem] flex flex-col items-center justify-center relative overflow-hidden shrink-0">
-                  <Cake className="w-16 h-16 text-blue-200 group-hover:scale-110 transition-transform duration-500" />
+              <div key={item.id} className={`bg-white rounded-[2.5rem] border border-blue-50 p-2 group hover:shadow-2xl transition-all duration-500 flex flex-col h-full reveal stagger-${(idx % 3) + 1} ${menuVisible ? 'visible' : ''}`}>
+                <div className="bg-[#fdfcfb] h-52 rounded-[2.2rem] flex flex-col items-center justify-center relative overflow-hidden shrink-0 group-hover:bg-blue-50 transition-colors duration-500">
+                  <Cake className="w-16 h-16 text-blue-100 group-hover:text-blue-200 group-hover:scale-110 transition-all duration-700" />
                   <div className="absolute top-4 left-4 bg-white/80 backdrop-blur-sm px-4 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest text-blue-600">{item.category}</div>
                 </div>
-                <div className="p-6 flex flex-col flex-1">
+                <div className="p-8 flex flex-col flex-1">
                   <div className="flex justify-between items-start mb-3">
-                    <h3 className="text-2xl font-serif text-blue-950 font-bold leading-tight">{item.name}</h3>
-                    <span className="text-2xl font-black text-blue-600">{item.price}</span>
+                    <h3 className="text-2xl font-serif text-blue-950 font-bold leading-tight group-hover:text-blue-700 transition-colors">{item.name}</h3>
+                    <span className="text-2xl font-black text-blue-600 shrink-0 ml-2">{item.price}</span>
                   </div>
-                  <p className="text-slate-500 text-sm leading-relaxed mb-6 flex-1">{item.description}</p>
+                  <p className="text-slate-500 text-sm leading-relaxed mb-8 flex-1">{item.description}</p>
                   {inCart ? (
-                    <div className="flex items-center gap-2">
-                       <div className="flex-1 bg-blue-900 text-white py-4 rounded-2xl font-bold flex items-center justify-between px-6">
-                          <button onClick={() => updateQuantity(item.id, -1)}><Minus size={18} /></button>
-                          <span>{inCart.quantity} in Basket</span>
-                          <button onClick={() => updateQuantity(item.id, 1)}><Plus size={18} /></button>
+                    <div className="flex items-center gap-2 animate-in zoom-in duration-300">
+                       <div className="flex-1 bg-blue-900 text-white py-4 rounded-2xl font-bold flex items-center justify-between px-6 shadow-lg shadow-blue-900/20">
+                          <button onClick={() => updateQuantity(item.id, -1)} className="hover:scale-125 transition-transform"><Minus size={18} /></button>
+                          <span className="text-sm tracking-wider uppercase">{inCart.quantity} in Basket</span>
+                          <button onClick={() => updateQuantity(item.id, 1)} className="hover:scale-125 transition-transform"><Plus size={18} /></button>
                        </div>
                     </div>
                   ) : (
-                    <button onClick={() => addToCart(item)} className="w-full bg-blue-50 text-blue-700 py-4 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-blue-600 hover:text-white transition-all active:scale-95"><Plus size={18} /> Add to Order</button>
+                    <button onClick={() => addToCart(item)} className="w-full bg-blue-50 text-blue-700 py-4 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-blue-600 hover:text-white transition-all active:scale-95 group-hover:translate-y-[-4px]">
+                      <Plus size={18} /> Add to Order
+                    </button>
                   )}
                 </div>
               </div>
@@ -293,68 +245,114 @@ const App = () => {
         </div>
       </section>
 
-      {/* Contact */}
-      <section id="contact" className="py-24 px-4 bg-white relative overflow-hidden">
+      {/* Contact Section */}
+      <section id="contact" ref={contactRef} className={`py-32 px-4 bg-white relative overflow-hidden reveal ${contactVisible ? 'visible' : ''}`}>
         <div className="max-w-6xl mx-auto relative">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            <div className="text-center lg:text-left">
-              <h2 className="text-4xl md:text-7xl font-serif text-blue-950 mb-8 leading-tight">Let's get the <br/> oven started</h2>
-              <div className="flex flex-col gap-6 max-w-md mx-auto lg:mx-0">
-                <div className="flex items-start gap-4 text-left">
-                  <div className="p-3 bg-blue-50 rounded-2xl text-blue-600"><MapPin /></div>
-                  <div><h4 className="font-bold text-blue-950">Find Me</h4><p className="text-slate-500">5084 Malandela Road, Ezakheni</p></div>
-                </div>
-                <div className="flex items-start gap-4 text-left">
-                  <div className="p-3 bg-blue-50 rounded-2xl text-blue-600"><Clock3 /></div>
-                  <div><h4 className="font-bold text-blue-950">Hours</h4><p className="text-slate-500">Mon - Sat: 08:00 - 17:00</p></div>
-                </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+            <div className="reveal stagger-1">
+              <h2 className="text-4xl md:text-7xl font-serif text-blue-950 mb-8 leading-tight">Let's get the <br/> <span className="italic text-blue-700 underline decoration-blue-100 underline-offset-8">oven started</span></h2>
+              <p className="text-lg md:text-xl text-slate-600 mb-10 leading-relaxed max-w-xl">Whether it's for a ceremony, a family gathering, or just a treat—I'd love to bake for you.</p>
+              <div className="space-y-6">
+                <div className="flex items-start gap-4"><div className="p-3 bg-blue-50 rounded-2xl text-blue-600"><MapPin /></div><div><h4 className="font-bold text-blue-950">Where to find me</h4><p className="text-slate-500">5084 Malandela Road, Section B, Ezakheni</p></div></div>
+                <div className="flex items-start gap-4"><div className="p-3 bg-blue-50 rounded-2xl text-blue-600"><Clock3 /></div><div><h4 className="font-bold text-blue-950">Baking Hours</h4><p className="text-slate-500">Mon - Sat: 08:00 - 17:00</p></div></div>
               </div>
             </div>
-            <div className="bg-[#fcfaf7] p-8 md:p-12 rounded-[3rem] border-4 border-dashed border-blue-100 space-y-4">
-              <button onClick={handleBrowseMenu} className="w-full flex items-center justify-between p-6 bg-white rounded-3xl border border-blue-50 hover:shadow-xl transition-all">
-                <div className="flex items-center gap-4 text-left">
-                  <div className="p-3 bg-emerald-100 text-emerald-600 rounded-2xl"><ShoppingBag /></div>
-                  <div><p className="font-bold">Start an Order</p></div>
-                </div>
-                <ChevronRight className="text-slate-300" />
-              </button>
-              <a href={`tel:${phoneNumber}`} className="flex items-center justify-between p-6 bg-white rounded-3xl border border-blue-50 hover:shadow-xl transition-all">
-                <div className="flex items-center gap-4 text-left">
-                  <div className="p-3 bg-blue-100 text-blue-600 rounded-2xl"><Phone /></div>
-                  <div><p className="font-bold">Call Sindy</p></div>
-                </div>
-                <ChevronRight className="text-slate-300" />
-              </a>
+            <div className="bg-[#fcfaf7] p-8 md:p-12 rounded-[3.5rem] border-2 border-blue-50 reveal stagger-2">
+              <div className="space-y-4">
+                <a href="#menu" className="w-full group flex items-center justify-between p-6 bg-white rounded-3xl border border-blue-50 hover:border-blue-200 transition-all hover:shadow-xl active:scale-95">
+                  <div className="flex items-center gap-4 text-left">
+                    <div className="p-3 bg-emerald-100 text-emerald-600 rounded-2xl group-hover:rotate-6 transition-transform"><ShoppingBag /></div>
+                    <div><p className="font-bold text-blue-950">Start an Order</p><p className="text-sm text-slate-400">Pick from the menu above</p></div>
+                  </div>
+                  <ChevronRight className="text-slate-300 group-hover:translate-x-1 transition-transform" />
+                </a>
+                <a href={`tel:${phoneNumber}`} className="group flex items-center justify-between p-6 bg-white rounded-3xl border border-blue-50 hover:border-blue-200 transition-all hover:shadow-xl active:scale-95">
+                  <div className="flex items-center gap-4 text-left">
+                    <div className="p-3 bg-blue-100 text-blue-600 rounded-2xl group-hover:rotate-6 transition-transform"><Phone /></div>
+                    <div><p className="font-bold text-blue-950">Call Sindy</p><p className="text-sm text-slate-400">Prefer to talk? Call anytime</p></div>
+                  </div>
+                  <ChevronRight className="text-slate-300 group-hover:translate-x-1 transition-transform" />
+                </a>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
+      {/* Cart Drawer */}
+      {isCartOpen && (
+        <div className="fixed inset-0 z-50 flex justify-center md:justify-end items-end md:items-stretch">
+          <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-300" onClick={() => setIsCartOpen(false)} />
+          <div className="relative w-full md:w-[450px] bg-white h-[85vh] md:h-full shadow-2xl flex flex-col animate-in slide-in-from-bottom md:slide-in-from-right duration-500 rounded-t-[2.5rem] md:rounded-none overflow-hidden">
+            <div className="px-8 py-8 border-b border-slate-50 flex justify-between items-center bg-white">
+              <div><h2 className="text-2xl font-serif font-bold text-blue-950">Your Basket</h2><p className="text-slate-400 text-sm">{cartItemCount} items selected</p></div>
+              <button onClick={() => setIsCartOpen(false)} className="p-2 hover:bg-slate-50 rounded-full transition-colors"><X size={24} /></button>
+            </div>
+            <div className="flex-1 overflow-y-auto px-6 py-4">
+              {cart.length === 0 ? (
+                <div className="h-full flex flex-col items-center justify-center text-slate-400 text-center animate-in zoom-in duration-500">
+                  <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center text-blue-200 mb-6"><ShoppingBag size={40} /></div>
+                  <h3 className="text-blue-950 font-bold text-lg mb-2">Empty Basket</h3>
+                  <a href="#menu" className="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-blue-100">Browse Menu</a>
+                </div>
+              ) : (
+                <div className="space-y-4 pb-32">
+                  {cart.map((item) => (
+                    <div key={item.id} className="flex gap-4 p-4 rounded-2xl border border-slate-50 hover:bg-blue-50/30 transition-colors animate-in slide-in-from-right-4">
+                      <div className="w-16 h-16 bg-blue-50 rounded-xl flex items-center justify-center text-blue-200 shrink-0"><Cake size={24} /></div>
+                      <div className="flex-1 flex flex-col justify-between">
+                        <div className="flex justify-between items-start gap-2"><h4 className="font-bold text-blue-950 text-sm">{item.name}</h4><span className="font-bold text-blue-600 text-sm">{item.price}</span></div>
+                        <div className="flex items-center justify-between mt-2">
+                          <div className="flex items-center gap-3 bg-white border border-slate-100 rounded-lg px-2 py-1">
+                            <button onClick={() => updateQuantity(item.id, -1)}><Minus size={14} /></button>
+                            <span className="text-xs font-bold w-4 text-center">{item.quantity}</span>
+                            <button onClick={() => updateQuantity(item.id, 1)}><Plus size={14} /></button>
+                          </div>
+                          <button onClick={() => updateQuantity(item.id, -item.quantity)} className="text-slate-300 hover:text-red-500"><Trash2 size={16} /></button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            {cart.length > 0 && (
+              <div className="p-8 border-t border-slate-50 bg-white absolute bottom-0 w-full animate-in slide-in-from-bottom duration-500">
+                <div className="flex justify-between items-end mb-6"><span className="text-slate-500">Total Estimate</span><span className="text-3xl font-serif font-bold text-blue-950">R{cartTotal}</span></div>
+                <button onClick={checkoutWhatsApp} className="w-full bg-emerald-600 text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-3 hover:bg-emerald-700 hover:shadow-xl hover:translate-y-[-2px] transition-all active:scale-95"><MessageCircle size={20} /> Order via WhatsApp</button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Testimonials */}
-      <section className="py-24 bg-blue-900 text-white text-center">
+      <section className="py-32 bg-blue-950 text-white text-center">
         <div className="max-w-4xl mx-auto px-6">
-          <div className="flex justify-center gap-1 mb-8">
+          <div className="flex justify-center gap-1 mb-8 animate-pulse">
             {[...Array(5)].map((_, i) => <Star key={i} size={20} fill="currentColor" className="text-yellow-400" />)}
           </div>
-          <div className="relative min-h-[150px] flex items-center justify-center">
+          <div className="relative min-h-[160px] flex items-center justify-center">
             {testimonials.map((t, i) => (
-              <div key={i} className={`absolute transition-all duration-500 ${i === activeTestimonial ? 'opacity-100 scale-100' : 'opacity-0 scale-90'}`}>
-                <p className="text-2xl font-serif italic mb-6">"{t.text}"</p>
-                <p className="font-bold tracking-widest uppercase text-sm text-blue-300">— {t.name}</p>
+              <div key={i} className={`absolute transition-all duration-700 ease-out ${i === activeTestimonial ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'}`}>
+                <p className="text-2xl md:text-3xl font-serif italic mb-6 leading-relaxed">"{t.text}"</p>
+                <p className="font-bold tracking-widest uppercase text-xs text-blue-400">— {t.name}</p>
               </div>
             ))}
           </div>
-          <div className="flex justify-center gap-4 mt-8">
-            <button onClick={() => setActiveTestimonial((prev) => (prev - 1 + testimonials.length) % testimonials.length)} className="p-3 border border-white/20 rounded-full"><ChevronLeft /></button>
-            <button onClick={() => setActiveTestimonial((prev) => (prev + 1) % testimonials.length)} className="p-3 border border-white/20 rounded-full"><ChevronRight /></button>
+          <div className="flex justify-center gap-4 mt-12">
+            <button onClick={() => setActiveTestimonial((prev) => (prev - 1 + testimonials.length) % testimonials.length)} className="p-3 border border-white/10 rounded-full hover:bg-white/10 transition-all active:scale-90"><ChevronLeft /></button>
+            <button onClick={() => setActiveTestimonial((prev) => (prev + 1) % testimonials.length)} className="p-3 border border-white/10 rounded-full hover:bg-white/10 transition-all active:scale-90"><ChevronRight /></button>
           </div>
         </div>
       </section>
 
-      <footer className="bg-white py-12 px-6 border-t border-blue-50 text-center md:text-left">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
-          <div><p className="text-slate-400 text-sm">© {currentYear} Sindy's Bakery. Ezakheni Section B.</p></div>
-          <div><p className="text-blue-500 font-bold tracking-[0.2em]">{phoneNumber}</p></div>
+      <footer className="bg-white py-16 px-6 border-t border-blue-50 text-center">
+        <div className="max-w-7xl mx-auto flex flex-col items-center gap-6">
+          <div className="flex items-center gap-2"><Cake className="text-blue-600" /><span className="text-xl font-serif font-bold text-blue-950">Sindy's Bakery</span></div>
+          <p className="text-slate-400 text-sm">© {currentYear} Sindy's Bakery. 5084 Malandela Road, Ezakheni Section B.</p>
+          <div className="h-px w-12 bg-blue-100" />
+          <p className="text-blue-500 font-bold tracking-[0.2em]">{phoneNumber}</p>
         </div>
       </footer>
     </div>
