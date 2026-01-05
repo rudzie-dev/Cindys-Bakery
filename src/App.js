@@ -43,7 +43,7 @@ const App = () => {
     const metaDescriptions = {
       "description": "Sindy's Bakery in Ezakheni offers heartwarming homemade muffins, scones, and bulk bakes. Made with love for your family.",
       "keywords": "bakery Ezakheni, home baking KZN, Sindy's Bakery, fresh scones, bulk muffins, Malandela Road bakery",
-      "viewport": "width=device-width, initial-scale=1.0, maximum-scale=5.0",
+      "viewport": "width=device-width, initial-scale=1.0, maximum-shadow-5.0",
       "theme-color": "#1e40af"
     };
 
@@ -167,6 +167,18 @@ const App = () => {
     setCart(prev => prev.filter(item => item.id !== itemId));
   };
 
+  const handleBrowseMenu = (e) => {
+    e.preventDefault();
+    setIsCartOpen(false);
+    // Smooth scroll to menu section after cart starts closing
+    setTimeout(() => {
+      const menuSection = document.getElementById('menu');
+      if (menuSection) {
+        menuSection.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, 100);
+  };
+
   const cartTotal = cart.reduce((sum, item) => sum + (getPrice(item.price) * item.quantity), 0);
   const cartItemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
@@ -191,11 +203,10 @@ const App = () => {
   return (
     <div className="min-h-screen bg-[#fcfaf7] font-sans text-slate-800 selection:bg-blue-100 antialiased relative">
       
-      {/* Navbar - Redesigned for cleaner PC layout */}
+      {/* Navbar */}
       <nav className={`fixed w-full z-40 transition-all duration-300 ${scrolled || isMenuOpen ? "bg-white/95 backdrop-blur-md shadow-sm border-b border-blue-100 py-2" : "bg-transparent py-4 md:py-6"}`}>
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           
-          {/* Left: Brand - Linked to Top */}
           <a href="#" className="flex-shrink-0 flex items-center gap-3 hover:opacity-90 transition-opacity">
             <div className={`p-2 rounded-xl transition-colors ${scrolled || isMenuOpen ? "bg-blue-50 text-blue-600" : "bg-white/10 text-white"}`}>
                <Cake size={24} />
@@ -206,7 +217,6 @@ const App = () => {
             </div>
           </a>
 
-          {/* Center: Desktop Navigation */}
           <div className={`hidden md:flex items-center gap-1 absolute left-1/2 -translate-x-1/2 p-1.5 rounded-full transition-all duration-300 ${scrolled ? "bg-slate-100/50 backdrop-blur-sm border border-white/50" : "bg-black/20 backdrop-blur-sm border border-white/10"}`}>
             {[
               { label: "The Menu", href: "#menu" },
@@ -223,9 +233,7 @@ const App = () => {
             ))}
           </div>
           
-          {/* Right: Actions */}
           <div className="flex items-center gap-3">
-            {/* Cart Button */}
             <button 
               onClick={() => setIsCartOpen(true)}
               className={`relative group flex items-center gap-2 pl-3 pr-3 py-2 rounded-full transition-all hover:scale-105 active:scale-95 ${scrolled || isMenuOpen ? "bg-blue-600 text-white hover:bg-blue-700 hover:shadow-lg shadow-blue-600/20" : "bg-white text-blue-900 shadow-xl"}`}
@@ -239,7 +247,6 @@ const App = () => {
               )}
             </button>
 
-            {/* Mobile Menu Toggle */}
             <div className="md:hidden">
               <button 
                 onClick={() => setIsMenuOpen(!isMenuOpen)} 
@@ -251,7 +258,6 @@ const App = () => {
           </div>
         </div>
         
-        {/* Mobile Menu Dropdown */}
         {isMenuOpen && (
           <div className="md:hidden absolute top-full left-0 w-full bg-white border-b border-blue-100 shadow-xl animate-in slide-in-from-top-2">
             <div className="p-4 flex flex-col space-y-2">
@@ -269,26 +275,22 @@ const App = () => {
         )}
       </nav>
 
-      {/* Modern Cart Overlay - Bottom Sheet on Mobile, Sidebar on Desktop */}
+      {/* Cart Overlay */}
       {isCartOpen && (
         <div className="fixed inset-0 z-50 flex justify-center md:justify-end items-end md:items-stretch">
-          {/* Backdrop */}
           <div 
             className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" 
             onClick={() => setIsCartOpen(false)} 
           />
           
-          {/* Cart Panel */}
           <div className="relative w-full md:w-[450px] bg-white h-[85vh] md:h-full shadow-2xl flex flex-col 
                           animate-in slide-in-from-bottom duration-300 md:animate-in md:slide-in-from-right
                           rounded-t-[2.5rem] md:rounded-none overflow-hidden">
             
-            {/* Mobile Handle Indicator */}
             <div className="md:hidden w-full flex justify-center pt-4 pb-1" onClick={() => setIsCartOpen(false)}>
               <div className="w-16 h-1.5 bg-slate-200 rounded-full" />
             </div>
 
-            {/* Header */}
             <div className="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-white sticky top-0 z-10">
               <div>
                 <h2 className="text-2xl font-serif font-bold text-blue-950">Your Basket</h2>
@@ -302,7 +304,6 @@ const App = () => {
               </button>
             </div>
 
-            {/* Cart Items */}
             <div className="flex-1 overflow-y-auto px-6 py-4">
               {cart.length === 0 ? (
                 <div className="h-full flex flex-col items-center justify-center text-slate-400 space-y-6 text-center px-8">
@@ -313,12 +314,16 @@ const App = () => {
                     <h3 className="text-blue-950 font-bold text-lg mb-2">Your basket is empty</h3>
                     <p className="text-sm">Looks like you haven't picked any treats yet.</p>
                   </div>
-                  <button onClick={() => setIsCartOpen(false)} className="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200">
+                  <a 
+                    href="#menu" 
+                    onClick={handleBrowseMenu} 
+                    className="bg-blue-600 text-white px-8 py-4 rounded-xl font-bold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200"
+                  >
                     Browse the Menu
-                  </button>
+                  </a>
                 </div>
               ) : (
-                <div className="space-y-4 pb-32"> {/* Extra padding for bottom fixed section */}
+                <div className="space-y-4 pb-32">
                   {cart.map((item) => (
                     <div key={item.id} className="flex gap-4 p-4 rounded-2xl border border-slate-100 hover:border-blue-100 hover:bg-blue-50/30 transition-colors group">
                       <div className="w-20 h-20 bg-blue-50 rounded-xl flex items-center justify-center text-blue-300 shrink-0">
@@ -360,10 +365,8 @@ const App = () => {
               )}
             </div>
 
-            {/* Footer / Checkout */}
             {cart.length > 0 && (
               <div className="p-6 border-t border-slate-100 bg-white absolute bottom-0 w-full rounded-t-[2rem] shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
-                {/* Method Selector */}
                 <div className="flex bg-slate-100 p-1 rounded-xl mb-6">
                   <button 
                     onClick={() => setDeliveryMethod('pickup')}
@@ -397,7 +400,7 @@ const App = () => {
         </div>
       )}
 
-      {/* Hero with ID for Navigation */}
+      {/* Hero */}
       <section id="about" className="relative min-h-[90svh] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0">
           <img src="https://images.unsplash.com/photo-1558961363-fa8fdf82db35?q=80&w=2000" className="w-full h-full object-cover" alt="Sindy's Baking" />
@@ -417,7 +420,7 @@ const App = () => {
       </section>
 
       {/* Menu Grid */}
-      <section id="menu" className="py-24 px-4 max-w-7xl mx-auto">
+      <section id="menu" className="py-24 px-4 max-w-7xl mx-auto scroll-mt-20">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-6xl font-serif text-blue-950 mb-4">Sindy's Oven Favorites</h2>
           <p className="text-slate-500 font-medium">Baked fresh to order. Pick your favorites and add them to your basket.</p>
@@ -462,15 +465,13 @@ const App = () => {
         </div>
       </section>
 
-      {/* Reimagined Contact: The Kitchen Chat */}
+      {/* Contact Section */}
       <section id="contact" className="py-24 px-4 bg-white relative overflow-hidden">
-        {/* Flour-dusted background effect */}
         <div className="absolute inset-0 opacity-[0.02] pointer-events-none" style={{ backgroundImage: 'radial-gradient(#2563eb 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
         
         <div className="max-w-6xl mx-auto relative">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             
-            {/* Left side: Warm Invitation */}
             <div className="text-center lg:text-left">
               <div className="inline-flex items-center gap-2 text-blue-600 font-bold tracking-widest uppercase text-sm mb-6">
                 <Heart size={16} fill="currentColor" /> Baked in Ezakheni
@@ -488,7 +489,6 @@ const App = () => {
                   <div>
                     <h4 className="font-bold text-blue-950">Where to find me</h4>
                     <p className="text-slate-500">5084 Malandela Road, Section B, Ezakheni</p>
-                    <p className="text-xs text-blue-400 font-medium">Just down the road from the local shops!</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-4 text-left">
@@ -496,13 +496,11 @@ const App = () => {
                   <div>
                     <h4 className="font-bold text-blue-950">Baking Hours</h4>
                     <p className="text-slate-500">Mon - Sat: 08:00 - 17:00</p>
-                    <p className="text-xs text-blue-400 font-medium">Please order 24 hours in advance for bulk!</p>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Right side: Friendly "Chat Cards" instead of a Form */}
             <div className="bg-[#fcfaf7] p-8 md:p-12 rounded-[3rem] border-4 border-dashed border-blue-100 relative">
               <div className="absolute -top-6 -right-6 bg-yellow-400 text-blue-900 font-black p-4 rounded-full shadow-lg rotate-12 hidden md:block">
                 Fresh Batch <br/> Coming Up!
@@ -511,7 +509,7 @@ const App = () => {
               <h3 className="text-3xl font-serif text-blue-900 mb-8 text-center">How can Sindy help?</h3>
               
               <div className="space-y-4">
-                <button onClick={() => setIsCartOpen(true)} className="w-full group flex items-center justify-between p-6 bg-white rounded-3xl border border-blue-50 hover:border-blue-300 transition-all hover:shadow-xl active:scale-95">
+                <button onClick={handleBrowseMenu} className="w-full group flex items-center justify-between p-6 bg-white rounded-3xl border border-blue-50 hover:border-blue-300 transition-all hover:shadow-xl active:scale-95">
                   <div className="flex items-center gap-4">
                     <div className="p-3 bg-emerald-100 text-emerald-600 rounded-2xl"><ShoppingBag /></div>
                     <div className="text-left">
