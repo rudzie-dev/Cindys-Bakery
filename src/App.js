@@ -9,21 +9,29 @@ import {
   ChevronRight, 
   Star,
   Heart,
-  UtensilsCrossed,
-  Wheat,
   ShoppingBag,
   MessageCircle,
-  Clock3
+  Clock3,
+  Plus,
+  Minus,
+  Trash2,
+  Truck,
+  Store
 } from 'lucide-react';
 
 const App = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const [cart, setCart] = useState([]);
+  const [deliveryMethod, setDeliveryMethod] = useState('pickup'); // 'pickup' or 'delivery'
   const [activeTestimonial, setActiveTestimonial] = useState(0);
   const [scrolled, setScrolled] = useState(false);
   
   const currentYear = new Date().getFullYear();
   const phoneNumber = "0739015521";
-  const whatsappUrl = `https://wa.me/27${phoneNumber.substring(1)}?text=Hello%20Sindy!%20I'd%20like%20to%20order%20some%20of%20your%20delicious%20baking...`;
+  
+  // Helper to parse price string "R130" to number 130
+  const getPrice = (priceStr) => parseInt(priceStr.replace('R', ''));
 
   useEffect(() => {
     document.title = "Sindy's Bakery Ezakheni | The Warmth of Home Baking";
@@ -52,42 +60,49 @@ const App = () => {
 
   const menuItems = [
     { 
+      id: 1,
       name: "5Ltr Scones", 
       price: "R130", 
       category: "Family Favourites",
       description: "Warm, golden scones that taste just like Sunday morning."
     },
     { 
+      id: 2,
       name: "10Ltr Cupcakes / White Muffins", 
       price: "R230", 
       category: "Family Favourites",
       description: "Little bites of joy to share with the ones you love."
     },
     { 
+      id: 3,
       name: "5Ltr Cupcakes", 
       price: "R250", 
       category: "Specialty Treats",
       description: "Beautifully baked treats that make any day feel special."
     },
     { 
+      id: 4,
       name: "20Ltr Scones", 
       price: "R350", 
       category: "Big Gatherings",
       description: "A generous bucket of comfort for your big family events."
     },
     { 
+      id: 5,
       name: "5Ltr Brown Muffins (Plain)", 
       price: "R180", 
       category: "Wholesome Goodness",
       description: "Simple, earthy, and made with care—wholesome goodness."
     },
     { 
+      id: 6,
       name: "5Ltr Brown Muffins (w/ Choc Chips)", 
       price: "R220", 
       category: "Wholesome Goodness",
       description: "A warm hug in a muffin—rich chocolate meets home baking."
     },
     { 
+      id: 7,
       name: "20Ltr Muffins", 
       price: "R450", 
       category: "Big Gatherings",
@@ -113,13 +128,58 @@ const App = () => {
     }
   ];
 
-  const nextTestimonial = () => setActiveTestimonial((prev) => (prev + 1) % testimonials.length);
-  const prevTestimonial = () => setActiveTestimonial((prev) => (prev - 1 + testimonials.length) % testimonials.length);
+  // Cart Functions
+  const addToCart = (item) => {
+    setCart(prev => {
+      const existing = prev.find(i => i.id === item.id);
+      if (existing) {
+        return prev.map(i => i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i);
+      }
+      return [...prev, { ...item, quantity: 1 }];
+    });
+    setIsCartOpen(true);
+  };
+
+  const updateQuantity = (itemId, change) => {
+    setCart(prev => prev.map(item => {
+      if (item.id === itemId) {
+        const newQuantity = Math.max(0, item.quantity + change);
+        return { ...item, quantity: newQuantity };
+      }
+      return item;
+    }).filter(item => item.quantity > 0));
+  };
+
+  const removeFromCart = (itemId) => {
+    setCart(prev => prev.filter(item => item.id !== itemId));
+  };
+
+  const cartTotal = cart.reduce((sum, item) => sum + (getPrice(item.price) * item.quantity), 0);
+  const cartItemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+
+  const checkoutWhatsApp = () => {
+    if (cart.length === 0) return;
+
+    let message = "Hello Sindy! 🧁 I'd like to place an order:%0A%0A";
+    
+    cart.forEach(item => {
+      message += `▪️ ${item.quantity}x ${item.name} (${item.price})%0A`;
+    });
+
+    message += `%0A*Total Estimate: R${cartTotal}*`;
+    message += `%0A------------------`;
+    message += `%0AMethod: ${deliveryMethod === 'delivery' ? '🚚 Delivery' : '🏪 Store Pickup'}`;
+    message += `%0A%0A(Please let me know if this is available!)`;
+
+    const url = `https://wa.me/27${phoneNumber.substring(1)}?text=${message}`;
+    window.open(url, '_blank');
+  };
 
   return (
-    <div className="min-h-screen bg-[#fcfaf7] font-sans text-slate-800 selection:bg-blue-100 antialiased">
+    <div className="min-h-screen bg-[#fcfaf7] font-sans text-slate-800 selection:bg-blue-100 antialiased relative">
+      
       {/* Navbar */}
-      <nav className={`fixed w-full z-50 transition-all duration-300 ${scrolled || isMenuOpen ? "bg-white/95 backdrop-blur-md py-3 shadow-sm border-b border-blue-100" : "bg-transparent py-5"}`}>
+      <nav className={`fixed w-full z-40 transition-all duration-300 ${scrolled || isMenuOpen ? "bg-white/95 backdrop-blur-md py-3 shadow-sm border-b border-blue-100" : "bg-transparent py-5"}`}>
         <div className="max-w-7xl mx-auto px-4 flex justify-between items-center h-12">
           <div className="flex items-center gap-2">
             <Cake className={`w-6 h-6 ${scrolled || isMenuOpen ? "text-blue-600" : "text-white"}`} />
@@ -128,27 +188,145 @@ const App = () => {
               <span className={`text-[9px] uppercase tracking-widest font-bold ${scrolled || isMenuOpen ? "text-blue-500" : "text-blue-100/80"}`}>Ezakheni • KZN</span>
             </div>
           </div>
-          <div className="md:hidden">
-            <button onClick={() => setIsMenuOpen(!isMenuOpen)} className={`p-2 rounded-lg ${scrolled || isMenuOpen ? "text-blue-900 bg-blue-50" : "text-white bg-white/10"}`}>
-              {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          
+          <div className="flex items-center gap-4">
+            {/* Cart Icon Mobile/Desktop */}
+            <button 
+              onClick={() => setIsCartOpen(true)}
+              className={`relative p-2 rounded-full transition-colors ${scrolled || isMenuOpen ? "text-blue-900 hover:bg-blue-50" : "text-white hover:bg-white/20"}`}
+            >
+              <ShoppingBag size={24} />
+              {cartItemCount > 0 && (
+                <span className="absolute top-0 right-0 bg-red-500 text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full border-2 border-white transform translate-x-1 -translate-y-1">
+                  {cartItemCount}
+                </span>
+              )}
             </button>
+
+            <div className="md:hidden">
+              <button onClick={() => setIsMenuOpen(!isMenuOpen)} className={`p-2 rounded-lg ${scrolled || isMenuOpen ? "text-blue-900 bg-blue-50" : "text-white bg-white/10"}`}>
+                {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+              </button>
+            </div>
           </div>
+
           <div className={`hidden md:flex space-x-8 font-medium ${scrolled ? "text-slate-600" : "text-white"}`}>
             <a href="#menu" className="hover:text-blue-400 transition-colors">The Menu</a>
             <a href="#about" className="hover:text-blue-400 transition-colors">Our Kitchen</a>
             <a href="#contact" className="hover:text-blue-400 transition-colors">How to Order</a>
           </div>
         </div>
+        
         {isMenuOpen && (
           <div className="md:hidden bg-white border-b border-blue-100 p-6 flex flex-col space-y-4 text-center">
             <a href="#menu" onClick={() => setIsMenuOpen(false)} className="text-xl font-bold py-2">The Menu</a>
             <a href="#contact" onClick={() => setIsMenuOpen(false)} className="text-xl font-bold py-2">How to Order</a>
-            <a href={whatsappUrl} className="bg-emerald-600 text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2">
-              <MessageCircle size={20} /> WhatsApp Sindy
-            </a>
           </div>
         )}
       </nav>
+
+      {/* Cart Sidebar Overlay */}
+      {isCartOpen && (
+        <div className="fixed inset-0 z-50 flex justify-end">
+          <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" onClick={() => setIsCartOpen(false)} />
+          <div className="relative w-full max-w-md bg-white h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-300">
+            <div className="p-6 border-b border-blue-50 flex justify-between items-center bg-blue-900 text-white">
+              <div className="flex items-center gap-3">
+                <ShoppingBag size={20} />
+                <h2 className="text-xl font-serif font-bold">Your Basket</h2>
+              </div>
+              <button onClick={() => setIsCartOpen(false)} className="p-2 hover:bg-white/10 rounded-full">
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-6">
+              {cart.length === 0 ? (
+                <div className="h-full flex flex-col items-center justify-center text-slate-400 space-y-4">
+                  <ShoppingBag size={48} className="opacity-20" />
+                  <p>Your basket is empty</p>
+                  <button onClick={() => setIsCartOpen(false)} className="text-blue-600 font-bold hover:underline">
+                    Browse the Menu
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {cart.map((item) => (
+                    <div key={item.id} className="flex gap-4">
+                      <div className="w-16 h-16 bg-blue-50 rounded-xl flex items-center justify-center text-blue-300">
+                        <Cake size={24} />
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex justify-between items-start mb-1">
+                          <h4 className="font-bold text-blue-950 line-clamp-1">{item.name}</h4>
+                          <span className="font-bold text-blue-600 text-sm">{item.price}</span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <div className="flex items-center border border-slate-200 rounded-lg">
+                            <button onClick={() => updateQuantity(item.id, -1)} className="p-1 hover:bg-slate-100 text-slate-500">
+                              <Minus size={14} />
+                            </button>
+                            <span className="px-2 text-sm font-medium w-6 text-center">{item.quantity}</span>
+                            <button onClick={() => updateQuantity(item.id, 1)} className="p-1 hover:bg-slate-100 text-blue-600">
+                              <Plus size={14} />
+                            </button>
+                          </div>
+                          <button onClick={() => removeFromCart(item.id)} className="text-red-400 hover:text-red-600 ml-auto">
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {cart.length > 0 && (
+              <div className="p-6 border-t border-blue-50 bg-slate-50">
+                {/* Delivery Option */}
+                <div className="mb-6">
+                  <p className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3">Order Method</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button 
+                      onClick={() => setDeliveryMethod('pickup')}
+                      className={`p-3 rounded-xl border flex flex-col items-center gap-2 transition-all ${deliveryMethod === 'pickup' ? 'bg-white border-blue-600 text-blue-900 shadow-sm' : 'bg-transparent border-slate-200 text-slate-400'}`}
+                    >
+                      <Store size={20} />
+                      <span className="text-sm font-bold">Collect</span>
+                    </button>
+                    <button 
+                      onClick={() => setDeliveryMethod('delivery')}
+                      className={`p-3 rounded-xl border flex flex-col items-center gap-2 transition-all ${deliveryMethod === 'delivery' ? 'bg-white border-blue-600 text-blue-900 shadow-sm' : 'bg-transparent border-slate-200 text-slate-400'}`}
+                    >
+                      <Truck size={20} />
+                      <span className="text-sm font-bold">Delivery</span>
+                    </button>
+                  </div>
+                  {deliveryMethod === 'delivery' && (
+                    <p className="text-xs text-blue-500 mt-2 text-center bg-blue-50 p-2 rounded-lg">
+                      * Delivery fees may apply depending on your location in Ezakheni.
+                    </p>
+                  )}
+                </div>
+
+                <div className="flex justify-between items-center mb-4 text-lg font-bold text-blue-950">
+                  <span>Total Estimate</span>
+                  <span>R{cartTotal}</span>
+                </div>
+                
+                <button 
+                  onClick={checkoutWhatsApp}
+                  className="w-full bg-emerald-600 text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-emerald-700 transition-all shadow-lg active:scale-95"
+                >
+                  <MessageCircle size={20} />
+                  Send Order to Sindy
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Hero */}
       <section className="relative min-h-[90svh] flex items-center justify-center overflow-hidden">
@@ -162,7 +340,9 @@ const App = () => {
           <p className="text-lg md:text-2xl text-blue-50 mb-10 max-w-2xl mx-auto drop-shadow-md">No fancy factories, just Sindy's kitchen. Real ingredients, baked fresh for your family gatherings.</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a href="#menu" className="bg-white text-blue-900 px-10 py-5 rounded-2xl text-lg font-bold shadow-xl hover:scale-105 transition-transform active:scale-95">See Today's Treats</a>
-            <a href={whatsappUrl} className="bg-emerald-600 text-white px-10 py-5 rounded-2xl text-lg font-bold shadow-xl flex items-center justify-center gap-2 hover:bg-emerald-700 transition-colors"><MessageCircle /> Chat with Sindy</a>
+            <button onClick={() => setIsCartOpen(true)} className="bg-blue-600 text-white px-10 py-5 rounded-2xl text-lg font-bold shadow-xl flex items-center justify-center gap-2 hover:bg-blue-700 transition-colors">
+              <ShoppingBag size={20} /> View Basket {cartItemCount > 0 && `(${cartItemCount})`}
+            </button>
           </div>
         </div>
       </section>
@@ -171,28 +351,45 @@ const App = () => {
       <section id="menu" className="py-24 px-4 max-w-7xl mx-auto">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-6xl font-serif text-blue-950 mb-4">Sindy's Oven Favorites</h2>
-          <p className="text-slate-500 font-medium">Baked fresh to order. Pick your favorites and share the love.</p>
+          <p className="text-slate-500 font-medium">Baked fresh to order. Pick your favorites and add them to your basket.</p>
           <div className="w-20 h-1 bg-blue-600 mx-auto mt-6 rounded-full opacity-30" />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {menuItems.map((item, idx) => (
-            <div key={idx} className="bg-white rounded-[2.5rem] border-2 border-blue-50 p-2 group hover:shadow-2xl transition-all duration-500">
-              <div className="bg-blue-50 h-52 rounded-[2.2rem] flex flex-col items-center justify-center relative overflow-hidden">
-                <Cake className="w-16 h-16 text-blue-200 group-hover:scale-110 transition-transform duration-500" />
-                <div className="absolute top-4 left-4 bg-white/80 backdrop-blur-sm px-4 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest text-blue-600">{item.category}</div>
-              </div>
-              <div className="p-6">
-                <div className="flex justify-between items-start mb-3">
-                  <h3 className="text-2xl font-serif text-blue-950 font-bold">{item.name}</h3>
-                  <span className="text-2xl font-black text-blue-600">{item.price}</span>
+          {menuItems.map((item) => {
+            const inCart = cart.find(c => c.id === item.id);
+            return (
+              <div key={item.id} className="bg-white rounded-[2.5rem] border-2 border-blue-50 p-2 group hover:shadow-2xl transition-all duration-500 flex flex-col h-full">
+                <div className="bg-blue-50 h-52 rounded-[2.2rem] flex flex-col items-center justify-center relative overflow-hidden shrink-0">
+                  <Cake className="w-16 h-16 text-blue-200 group-hover:scale-110 transition-transform duration-500" />
+                  <div className="absolute top-4 left-4 bg-white/80 backdrop-blur-sm px-4 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest text-blue-600">{item.category}</div>
                 </div>
-                <p className="text-slate-500 text-sm leading-relaxed mb-6">{item.description}</p>
-                <a href={whatsappUrl} className="w-full bg-blue-50 text-blue-700 py-4 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-blue-600 hover:text-white transition-all">
-                  Order this Bucket
-                </a>
+                <div className="p-6 flex flex-col flex-1">
+                  <div className="flex justify-between items-start mb-3">
+                    <h3 className="text-2xl font-serif text-blue-950 font-bold leading-tight">{item.name}</h3>
+                    <span className="text-2xl font-black text-blue-600 shrink-0 ml-2">{item.price}</span>
+                  </div>
+                  <p className="text-slate-500 text-sm leading-relaxed mb-6 flex-1">{item.description}</p>
+                  
+                  {inCart ? (
+                    <div className="flex items-center gap-2">
+                       <div className="flex-1 bg-blue-900 text-white py-4 rounded-2xl font-bold flex items-center justify-between px-6">
+                          <button onClick={() => updateQuantity(item.id, -1)} className="hover:text-blue-200"><Minus size={18} /></button>
+                          <span>{inCart.quantity} in Basket</span>
+                          <button onClick={() => updateQuantity(item.id, 1)} className="hover:text-blue-200"><Plus size={18} /></button>
+                       </div>
+                    </div>
+                  ) : (
+                    <button 
+                      onClick={() => addToCart(item)}
+                      className="w-full bg-blue-50 text-blue-700 py-4 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-blue-600 hover:text-white transition-all active:scale-95"
+                    >
+                      <Plus size={18} /> Add to Order
+                    </button>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </section>
 
@@ -245,16 +442,16 @@ const App = () => {
               <h3 className="text-3xl font-serif text-blue-900 mb-8 text-center">How can Sindy help?</h3>
               
               <div className="space-y-4">
-                <a href={whatsappUrl} className="group flex items-center justify-between p-6 bg-white rounded-3xl border border-blue-50 hover:border-blue-300 transition-all hover:shadow-xl active:scale-95">
+                <button onClick={() => setIsCartOpen(true)} className="w-full group flex items-center justify-between p-6 bg-white rounded-3xl border border-blue-50 hover:border-blue-300 transition-all hover:shadow-xl active:scale-95">
                   <div className="flex items-center gap-4">
-                    <div className="p-3 bg-emerald-100 text-emerald-600 rounded-2xl"><MessageCircle /></div>
+                    <div className="p-3 bg-emerald-100 text-emerald-600 rounded-2xl"><ShoppingBag /></div>
                     <div className="text-left">
-                      <p className="font-bold text-blue-950">Order on WhatsApp</p>
-                      <p className="text-sm text-slate-400 italic">"I'd like a 10Ltr bucket for tomorrow..."</p>
+                      <p className="font-bold text-blue-950">Start an Order</p>
+                      <p className="text-sm text-slate-400 italic">"I'll pick my favorites from the menu..."</p>
                     </div>
                   </div>
                   <ChevronRight className="text-slate-300 group-hover:text-blue-600" />
-                </a>
+                </button>
 
                 <a href={`tel:${phoneNumber}`} className="group flex items-center justify-between p-6 bg-white rounded-3xl border border-blue-50 hover:border-blue-300 transition-all hover:shadow-xl active:scale-95">
                   <div className="flex items-center gap-4">
@@ -270,7 +467,7 @@ const App = () => {
                 <div className="p-6 bg-blue-900 rounded-[2rem] text-white text-center shadow-xl mt-8">
                   <p className="font-serif italic text-lg mb-2">Ceremonies & Large Events</p>
                   <p className="text-blue-200 text-sm mb-4">Planning something big in Ezakheni? Let's chat about a custom price for large bulk orders.</p>
-                  <a href={whatsappUrl} className="inline-block text-yellow-400 font-bold border-b-2 border-yellow-400 pb-1 hover:text-white hover:border-white transition-all">Discuss Bulk Catering →</a>
+                  <a href={`https://wa.me/27${phoneNumber.substring(1)}?text=I'd like to discuss a bulk order`} className="inline-block text-yellow-400 font-bold border-b-2 border-yellow-400 pb-1 hover:text-white hover:border-white transition-all">Discuss Bulk Catering →</a>
                 </div>
               </div>
             </div>
