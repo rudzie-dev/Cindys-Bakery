@@ -33,17 +33,66 @@ const App = () => {
   
   const currentYear = new Date().getFullYear();
   const phoneNumber = "0739015521";
-  const DELIVERY_FEE = 30; // Standard local delivery fee
+  const DELIVERY_FEE = 30;
 
-  // --- MENU DATA ---
+  // --- MENU DATA WITH REAL IMAGES ---
   const menuItems = useMemo(() => [
-    { id: 1, name: "5Ltr Scones", price: "R130", category: "Family Favourites", description: "Warm, golden scones that taste just like Sunday morning." },
-    { id: 2, name: "10Ltr Cupcakes / White Muffins", price: "R230", category: "Family Favourites", description: "Little bites of joy to share with the ones you love." },
-    { id: 3, name: "5Ltr Cupcakes", price: "R250", category: "Specialty Treats", description: "Beautifully baked treats that make any day feel special." },
-    { id: 4, name: "20Ltr Scones", price: "R350", category: "Big Gatherings", description: "A generous bucket of comfort for your big family events." },
-    { id: 5, name: "5Ltr Brown Muffins (Plain)", price: "R180", category: "Wholesome Goodness", description: "Simple, earthy, and made with care—wholesome goodness." },
-    { id: 6, name: "5Ltr Brown Muffins (w/ Choc Chips)", price: "R220", category: "Wholesome Goodness", description: "A warm hug in a muffin—rich chocolate meets home baking." },
-    { id: 7, name: "20Ltr Muffins", price: "R450", category: "Big Gatherings", description: "Enough sweetness to make every guest smile at your party." },
+    { 
+      id: 1, 
+      name: "5Ltr Scones", 
+      price: "R130", 
+      category: "Family Favourites", 
+      description: "Warm, golden scones that taste just like Sunday morning.",
+      image: "https://images.unsplash.com/photo-1589114066442-84bb9176761d?q=80&w=800" 
+    },
+    { 
+      id: 2, 
+      name: "10Ltr Cupcakes / White Muffins", 
+      price: "R230", 
+      category: "Family Favourites", 
+      description: "Little bites of joy to share with the ones you love.",
+      image: "https://images.unsplash.com/photo-1576618148400-f54bed99fcfd?q=80&w=800"
+    },
+    { 
+      id: 3, 
+      name: "5Ltr Cupcakes", 
+      price: "R250", 
+      category: "Specialty Treats", 
+      description: "Beautifully baked treats that make any day feel special.",
+      image: "https://images.unsplash.com/photo-1550617931-e17a7b70dce2?q=80&w=800"
+    },
+    { 
+      id: 4, 
+      name: "20Ltr Scones", 
+      price: "R350", 
+      category: "Big Gatherings", 
+      description: "A generous bucket of comfort for your big family events.",
+      image: "https://images.unsplash.com/photo-1519915028121-7d3463d20b13?q=80&w=800"
+    },
+    { 
+      id: 5, 
+      name: "5Ltr Brown Muffins (Plain)", 
+      price: "R180", 
+      category: "Wholesome Goodness", 
+      description: "Simple, earthy, and made with care—wholesome goodness.",
+      image: "https://images.unsplash.com/photo-1558961363-fa8fdf82db35?q=80&w=800"
+    },
+    { 
+      id: 6, 
+      name: "5Ltr Brown Muffins (w/ Choc Chips)", 
+      price: "R220", 
+      category: "Wholesome Goodness", 
+      description: "A warm hug in a muffin—rich chocolate meets home baking.",
+      image: "https://images.unsplash.com/photo-1607958996333-41aef7caefaa?q=80&w=800"
+    },
+    { 
+      id: 7, 
+      name: "20Ltr Muffins", 
+      price: "R450", 
+      category: "Big Gatherings", 
+      description: "Enough sweetness to make every guest smile at your party.",
+      image: "https://images.unsplash.com/photo-1587314168485-3236d6710814?q=80&w=800"
+    },
   ], []);
 
   const testimonials = [
@@ -53,17 +102,6 @@ const App = () => {
   ];
 
   // --- EFFECTS ---
-  useEffect(() => {
-    const savedCart = localStorage.getItem('sindys_bakery_cart');
-    if (savedCart) {
-      try { setCart(JSON.parse(savedCart)); } catch (e) { console.error("Failed to load cart"); }
-    }
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem('sindys_bakery_cart', JSON.stringify(cart));
-  }, [cart]);
-
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 50);
@@ -185,7 +223,7 @@ const App = () => {
         </div>
       </nav>
 
-      {/* Cart Drawer (No changes to logic, just standard component) */}
+      {/* Cart Drawer */}
       {isCartOpen && (
         <div className="fixed inset-0 z-50 flex justify-end items-stretch">
           <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" onClick={() => setIsCartOpen(false)} />
@@ -208,7 +246,9 @@ const App = () => {
                 <div className="space-y-4 pb-4">
                   {cart.map((item) => (
                     <div key={item.id} className="flex gap-4 p-4 rounded-2xl border border-slate-100 hover:bg-blue-50/30 transition-colors">
-                      <div className="w-16 h-16 bg-blue-50 rounded-xl flex items-center justify-center text-blue-300 shrink-0"><Cake size={24} /></div>
+                      <div className="w-16 h-16 rounded-xl overflow-hidden shrink-0">
+                         <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                      </div>
                       <div className="flex-1">
                         <div className="flex justify-between items-start mb-1">
                           <h4 className="font-bold text-blue-950 text-sm leading-tight">{item.name}</h4>
@@ -246,10 +286,10 @@ const App = () => {
         </div>
       )}
 
-      {/* 1. HERO (The Hook) */}
+      {/* 1. HERO */}
       <section id="home" className="relative min-h-[95vh] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0">
-          <img src="https://images.unsplash.com/photo-1558961363-fa8fdf82db35?q=80&w=2000" className="w-full h-full object-cover scale-105" alt="Bakery Hero" />
+          <img src="https://images.unsplash.com/photo-1517433670267-08bbd4be890f?q=80&w=2000" className="w-full h-full object-cover scale-105" alt="Bakery Hero" />
           <div className="absolute inset-0 bg-gradient-to-b from-blue-950/80 via-blue-950/40 to-[#fcfaf7]" />
         </div>
         <div className="relative text-center px-6 max-w-4xl animate-in fade-in slide-in-from-bottom-8 duration-1000">
@@ -265,7 +305,7 @@ const App = () => {
         </div>
       </section>
 
-      {/* 2. MENU (The catalog - immediate gratification) */}
+      {/* 2. MENU */}
       <section id="menu" className="py-32 px-6 max-w-7xl mx-auto">
         <div className="text-center mb-20 max-w-2xl mx-auto">
           <h2 className="text-4xl md:text-6xl font-serif text-blue-950 mb-6 tracking-tight">From the Oven</h2>
@@ -277,9 +317,14 @@ const App = () => {
             const inCart = cart.find(c => c.id === item.id);
             return (
               <div key={item.id} className="bg-white rounded-[2.5rem] border border-blue-50 p-3 group hover:shadow-[0_20px_60px_-15px_rgba(30,64,175,0.1)] transition-all duration-500 flex flex-col h-full">
-                <div className="bg-blue-50/50 h-56 rounded-[2rem] flex flex-col items-center justify-center relative overflow-hidden shrink-0 group-hover:bg-blue-50 transition-colors">
-                  <Cake className="w-16 h-16 text-blue-200 group-hover:scale-110 group-hover:text-blue-300 transition-all duration-500" />
-                  <div className="absolute top-5 left-5 bg-white px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest text-blue-600 shadow-sm">{item.category}</div>
+                <div className="h-64 rounded-[2rem] overflow-hidden relative shrink-0 group-hover:scale-[1.02] transition-transform duration-500 shadow-sm">
+                  <img 
+                    src={item.image} 
+                    alt={item.name} 
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+                    onError={(e) => { e.target.src = "https://images.unsplash.com/photo-1558961363-fa8fdf82db35?q=80&w=800"; }}
+                  />
+                  <div className="absolute top-5 left-5 bg-white/95 backdrop-blur-sm px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest text-blue-600 shadow-sm">{item.category}</div>
                 </div>
                 <div className="p-6 flex flex-col flex-1">
                   <div className="flex justify-between items-start mb-4 gap-4">
@@ -305,9 +350,11 @@ const App = () => {
         </div>
       </section>
 
-      {/* 3. ABOUT (The "Why" - Build trust in the quality) */}
+      {/* 3. ABOUT */}
       <section id="about" className="py-32 px-6 bg-blue-950 text-white relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-1/3 h-full bg-blue-900/20 -skew-x-12 translate-x-1/2" />
+        <div className="absolute inset-0 opacity-10 grayscale pointer-events-none">
+          <img src="https://images.unsplash.com/photo-1556910103-1c02745aae4d?q=80&w=2000" className="w-full h-full object-cover" alt="Kitchen background" />
+        </div>
         <div className="max-w-7xl mx-auto relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
             <div className="relative">
@@ -338,7 +385,8 @@ const App = () => {
                 </div>
               </div>
             </div>
-            <div className="bg-white/5 backdrop-blur-sm p-8 md:p-12 rounded-[3.5rem] border border-white/10">
+            <div className="bg-white/5 backdrop-blur-md p-8 md:p-12 rounded-[3.5rem] border border-white/10 overflow-hidden relative">
+                <div className="absolute -bottom-20 -right-20 w-64 h-64 bg-blue-500/20 blur-3xl rounded-full" />
                 <div className="flex flex-col gap-8">
                    <div className="flex gap-4">
                       <div className="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center shrink-0">1</div>
@@ -367,7 +415,7 @@ const App = () => {
         </div>
       </section>
 
-      {/* 4. TESTIMONIALS (Social Proof) */}
+      {/* 4. TESTIMONIALS */}
       <section className="py-24 bg-white px-6">
         <div className="max-w-4xl mx-auto">
           <div className="flex flex-col items-center text-center">
@@ -389,7 +437,7 @@ const App = () => {
         </div>
       </section>
 
-      {/* 5. CONTACT (The Closer) */}
+      {/* 5. CONTACT */}
       <section id="contact" className="py-32 px-6 bg-[#fcfaf7] relative overflow-hidden">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
@@ -413,7 +461,8 @@ const App = () => {
               </div>
             </div>
 
-            <div className="bg-white p-8 md:p-14 rounded-[3.5rem] border border-blue-100 shadow-2xl relative">
+            <div className="bg-white p-8 md:p-14 rounded-[3.5rem] border border-blue-100 shadow-2xl relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-blue-50/50 rounded-full translate-x-1/2 -translate-y-1/2" />
               <div className="absolute -top-6 -right-6 bg-yellow-400 text-blue-950 font-black px-6 py-4 rounded-3xl shadow-xl rotate-12 hidden md:block">Bulk Orders <br/> Welcome!</div>
               <h3 className="text-3xl font-serif text-blue-950 mb-8">How to get in touch</h3>
               <div className="space-y-4">
