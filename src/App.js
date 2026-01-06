@@ -238,7 +238,8 @@ const App = () => {
               onClick={() => setIsCartOpen(true)}
               className={`relative group flex items-center gap-2 pl-3 pr-3 py-2 rounded-full transition-all hover:scale-105 active:scale-95 ${scrolled || isMenuOpen ? "bg-blue-600 text-white hover:bg-blue-700 hover:shadow-lg shadow-blue-600/20" : "bg-white text-blue-900 shadow-xl"}`}
             >
-              <ShoppingBag size={20} className={cartItemCount > 0 ? "fill-current" : ""} />
+              {/* FIXED: Removed fill-current to prevent solid white filling */}
+              <ShoppingBag size={20} className="fill-none" />
               <span className="font-bold text-sm hidden sm:block">Basket</span>
               {cartItemCount > 0 && (
                 <span className={`ml-1 text-[10px] font-bold h-5 min-w-[1.25rem] px-1 flex items-center justify-center rounded-full ${scrolled || isMenuOpen ? "bg-white text-blue-600" : "bg-blue-600 text-white"}`}>
